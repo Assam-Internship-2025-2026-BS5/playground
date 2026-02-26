@@ -8,32 +8,35 @@ import 'package:designkit/components/atoms/image.dart' as atom;
 import 'package:designkit/components/atoms/button.dart' as atom;
 import 'package:designkit/components/atoms/icon.dart' as atom;
 import 'package:designkit/components/atoms/text_button.dart' as atom;
-import 'package:designkit/components/molecules/fingerprint_login.dart';
-import 'package:designkit/components/molecules/qr_scan.dart';
+import 'package:designkit/components/molecules/primary_button.dart';
+import 'package:designkit/components/molecules/scan.dart';
 import 'package:designkit/components/molecules/action_items.dart';
-import 'package:designkit/components/molecules/login.dart';
+import 'package:designkit/components/molecules/inline_action_row.dart';
 import 'package:designkit/components/organisms/header.dart';
 import 'package:designkit/components/organisms/bottom_nav.dart';
+import 'package:designkit/components/organisms/auth_section.dart';
 
 import 'package:designkit/components/pages/home_page.dart';
 
 final List<ComponentMetadata> componentRegistry = [
   ComponentMetadata(
-    name: 'QRScan',
+    name: 'Scan',
     category: 'Molecules',
     defaultProps: {
-      'title': 'QR Scan',
+      'title': 'Scan',
       'subtitle': '',
       'imagePath': 'assets/Qr_scan.png',
+      'textColor': const Color(0xFF1E3A8A),
       'width': 484.0,
       'height': 180.0,
       'opacity': 0.2,
     },
     builder: (Map<String, dynamic> props) {
-      return QRScan(
-        title: props['title'] ?? 'QR Scan',
+      return Scan(
+        title: props['title'] ?? 'Scan',
         subtitle: props['subtitle'] ?? '',
         imagePath: props['imagePath'] ?? 'assets/Qr_scan.png',
+        textColor: props['textColor'] ?? const Color(0xFF1E3A8A),
         width: (props['width'] as num?)?.toDouble() ?? 484.0,
         height: (props['height'] as num?)?.toDouble() ?? 180.0,
         blur: (props['blur'] as num?)?.toDouble() ?? 15.0,
@@ -42,7 +45,7 @@ final List<ComponentMetadata> componentRegistry = [
     },
   ),
   ComponentMetadata(
-    name: 'FingerprintLogin',
+    name: 'PrimaryButton',
     category: 'Molecules',
     defaultProps: {
       'title': 'Login with Fingerprint',
@@ -50,7 +53,7 @@ final List<ComponentMetadata> componentRegistry = [
       'height': 56.0,
     },
     builder: (Map<String, dynamic> props) {
-      return FingerprintLogin(
+      return PrimaryButton(
         title: props['title'] ?? 'Login with Fingerprint',
         width: (props['width'] as num?)?.toDouble() ?? 380.0,
         height: (props['height'] as num?)?.toDouble() ?? 56.0,
@@ -59,11 +62,11 @@ final List<ComponentMetadata> componentRegistry = [
     },
   ),
   ComponentMetadata(
-    name: 'Login',
+    name: 'InlineActionRow',
     category: 'Molecules',
     defaultProps: {},
     builder: (Map<String, dynamic> props) {
-      return Login(
+      return InlineActionRow(
         onMPINLogin: () => debugPrint('mPIN Login Tapped'),
         onForgotMPIN: () => debugPrint('Forgot mPIN Tapped'),
       );
@@ -101,6 +104,27 @@ final List<ComponentMetadata> componentRegistry = [
     builder: (Map<String, dynamic> props) {
       return BottomNav(
         onNavTap: (label) => debugPrint('Nav Tapped: $label'),
+      );
+    },
+  ),
+  ComponentMetadata(
+    name: 'AuthSection',
+    category: 'Organisms',
+    defaultProps: {
+      'fingerprintTitle': 'Login with Fingerprint',
+      'mpinText': 'Or, login with mPIN',
+      'forgotMpinText': 'Forgot mPIN?',
+      'width': 450.0,
+    },
+    builder: (Map<String, dynamic> props) {
+      return AuthSection(
+        fingerprintTitle: props['fingerprintTitle'] ?? 'Login with Fingerprint',
+        mpinText: props['mpinText'] ?? 'Or, login with mPIN',
+        forgotMpinText: props['forgotMpinText'] ?? 'Forgot mPIN?',
+        width: (props['width'] as num?)?.toDouble() ?? 450.0,
+        onFingerprintTap: () => debugPrint('Fingerprint Tapped'),
+        onMPINTap: () => debugPrint('mPIN Tapped'),
+        onForgotMPINTap: () => debugPrint('Forgot mPIN Tapped'),
       );
     },
   ),

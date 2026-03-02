@@ -135,15 +135,25 @@ final List<ComponentMetadata> componentRegistry = [
   ComponentMetadata(
     name: 'InlineActionRow',
     category: 'Molecules',
-    defaultProps: {},
+    defaultProps: {
+      'mpinText': 'Or, login with mPIN',
+      'forgotMpinText': 'Forgot mPIN?',
+      'textColor': const Color(0xFF1565C0),
+    },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return InlineActionRow(
+        mpinText: props['mpinText'] ?? 'Or, login with mPIN',
+        forgotMpinText: props['forgotMpinText'] ?? 'Forgot mPIN?',
+        textColor: props['textColor'] ?? const Color(0xFF1565C0),
         onMPINLogin: () => debugPrint('mPIN Login Tapped'),
         onForgotMPIN: () => debugPrint('Forgot mPIN Tapped'),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
       return "InlineActionRow(\n"
+          "  mpinText: '${props['mpinText']}',\n"
+          "  forgotMpinText: '${props['forgotMpinText']}',\n"
+          "  textColor: ${_formatColor(props['textColor'])},\n"
           "  onMPINLogin: () => print('mPIN Login'),\n"
           "  onForgotMPIN: () => print('Forgot mPIN'),\n"
           ")";
@@ -152,13 +162,21 @@ final List<ComponentMetadata> componentRegistry = [
   ComponentMetadata(
     name: 'ActionItems',
     category: 'Molecules',
-    defaultProps: {},
+    defaultProps: {
+      'items': null, // Uses default if null
+    },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return ActionItems(
+        items: props['items'],
         onItemTap: (item) => debugPrint('Tapped: ${item.title}'),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
+      if (props['items'] == null) {
+        return "ActionItems(\n"
+            "  onItemTap: (item) => print(item.title),\n"
+            ")";
+      }
       return "ActionItems(\n"
           "  items: [\n"
           "    ActionItemData(title: 'Send Money', imagePath: 'assets/Send_money.png'),\n"
@@ -170,44 +188,26 @@ final List<ComponentMetadata> componentRegistry = [
     },
   ),
   ComponentMetadata(
-    name: 'Header',
-    category: 'Organisms',
-    defaultProps: {
-      'userName': 'MHONBENI NGULLIE',
-      'customerId': '******1010',
-      'logoPath': 'assets/hdfc_logo.png',
-    },
-    builder: (Map<String, dynamic> props, {onPropChanged}) {
-      return Header(
-        userName: props['userName'] ?? 'MHONBENI NGULLIE',
-        customerId: props['customerId'] ?? '******1010',
-        logoPath: props['logoPath'] ?? 'assets/hdfc_logo.png',
-        onNotificationTap: () => debugPrint('Notification Tapped'),
-        onProfileTap: () => debugPrint('Profile Tapped'),
-      );
-    },
-    codeBuilder: (Map<String, dynamic> props) {
-      return "Header(\n"
-          "  userName: '${props['userName']}',\n"
-          "  customerId: '${props['customerId']}',\n"
-          "  logoPath: '${props['logoPath']}',\n"
-          "  onNotificationTap: () => print('Notification Tapped'),\n"
-          "  onProfileTap: () => print('Profile Tapped'),\n"
-          ")";
-    },
-  ),
-
-  ComponentMetadata(
     name: 'BottomNav',
     category: 'Organisms',
-    defaultProps: {},
+    defaultProps: {
+      'backgroundColor': Colors.white,
+      'activeColor': const Color(0xFF004C8F),
+      'inactiveColor': const Color(0xFF4B5563),
+    },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return BottomNav(
+        backgroundColor: props['backgroundColor'] ?? Colors.white,
+        activeColor: props['activeColor'] ?? const Color(0xFF004C8F),
+        inactiveColor: props['inactiveColor'] ?? const Color(0xFF4B5563),
         onNavTap: (label) => debugPrint('Nav Tapped: $label'),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
       return "BottomNav(\n"
+          "  backgroundColor: ${_formatColor(props['backgroundColor'])},\n"
+          "  activeColor: ${_formatColor(props['activeColor'])},\n"
+          "  inactiveColor: ${_formatColor(props['inactiveColor'])},\n"
           "  onNavTap: (label) => print(label),\n"
           ")";
     },

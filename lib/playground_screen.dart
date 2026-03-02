@@ -15,7 +15,6 @@ class PlaygroundScreen extends StatefulWidget {
 class _PlaygroundScreenState extends State<PlaygroundScreen> {
   ComponentMetadata? selectedComponent;
   Map<String, dynamic> currentProps = {};
-  bool isMobile = true;
   final Map<String, TextEditingController> _controllers = {};
   int _refreshCounter = 0;
   
@@ -28,6 +27,8 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   };
 
   int _selectedRightTab = 0; // 0 for Properties, 1 for Code
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = "";
 
   @override
   void initState() {
@@ -58,6 +59,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   @override
   void dispose() {
     _controllers.forEach((key, controller) => controller.dispose());
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -69,7 +71,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
           color: Color(0xFFF8FAFC), // Clean white-ish background
         ),
         child: Column(
-          children: [
+          children: [  
             _header(),
             Expanded(
               child: Row(
@@ -77,7 +79,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                 children: [
                   // Sidebar
                   Container(
-                    width: 400,
+                    width: 300,
                     decoration: BoxDecoration(
                       color: const Color(0xFFD0DDF2), // Light blue-grey tint for sidebar
                       border: Border(right: BorderSide(color: Colors.black.withAlpha(20), width: 1)),
@@ -95,7 +97,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                   ),
                   // Properties
                   SizedBox(
-                    width: 400,
+                    width: 300,
                     child: _properties(),
                   ),
                 ],
@@ -142,7 +144,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color(0xFF1E3A8A), // Deep blue for header
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -155,29 +157,68 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   // ================= SIDEBAR =================
 
   Widget _sidebar() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "COMPONENTS",
-            style: TextStyle(
-              color: Color(0xFF475569),
-              fontSize: 20,
-              letterSpacing: 1.2,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "COMPONENTS",
+                style: TextStyle(
+                  color: Color(0xFF475569),
+                  fontSize: 16,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _searchController,
+                onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+                decoration: InputDecoration(
+                  hintText: "Search components...",
+                  hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+                  prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 20),
+                  suffixIcon: _searchQuery.isNotEmpty 
+                    ? IconButton(
+                        icon: const Icon(Icons.close_rounded, size: 18),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = "");
+                        },
+                      )
+                    : null,
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.5),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _categoryGlassContainer("Pages"),
+                const SizedBox(height: 20),
+                _categoryGlassContainer("Atoms"),
+                const SizedBox(height: 20),
+                _categoryGlassContainer("Molecules"),
+                const SizedBox(height: 20),
+                _categoryGlassContainer("Organisms"),
+              ],
             ),
           ),
-          const SizedBox(height: 20),
-          _categoryGlassContainer("Pages"),
-          const SizedBox(height: 20),
-          _categoryGlassContainer("Atoms"),
-          const SizedBox(height: 20),
-          _categoryGlassContainer("Molecules"),
-          const SizedBox(height: 20),
-          _categoryGlassContainer("Organisms"),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -191,16 +232,24 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   }
 
   Widget _category(String category) {
-    final items = componentRegistry
+    var items = componentRegistry
         .where((c) => c.category == category)
         .toList();
-    final bool isExpanded = _expandedCategories[category] ?? false;
+
+    // Filter by search query if present
+    if (_searchQuery.isNotEmpty) {
+      items = items.where((c) => c.name.toLowerCase().contains(_searchQuery)).toList();
+      // If no items match in this category and we are searching, hide the category
+      if (items.isEmpty) return const SizedBox();
+    }
+
+    final bool isExpanded = _searchQuery.isNotEmpty || (_expandedCategories[category] ?? false);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
-          onTap: () => setState(() => _expandedCategories[category] = !isExpanded),
+          onTap: () => setState(() => _expandedCategories[category] = !(_expandedCategories[category] ?? false)),
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
@@ -212,7 +261,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                   style: const TextStyle(
                     color: Color(0xFF1E3A8A),
                     fontWeight: FontWeight.bold,
-                    fontSize: 24,
+                    fontSize: 18,
                   ),
                 ),
                 AnimatedRotation(
@@ -228,43 +277,34 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
           firstChild: const SizedBox(width: double.infinity),
           secondChild: Column(
             children: [
-              if (items.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: Text(
-                    "No components",
-                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12),
-                  ),
-                )
-              else
-                ...items.map(
-                  (c) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      dense: false,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      title: Text(
-                        c.name,
-                        style: TextStyle(
-                          color: selectedComponent?.name == c.name ? const Color(0xFF1E3A8A) : const Color(0xFF475569),
-                          fontSize: 20,
-                          fontWeight: selectedComponent?.name == c.name ? FontWeight.bold : FontWeight.normal,
-                        ),
+              ...items.map(
+                (c) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    dense: false,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    title: Text(
+                      c.name,
+                      style: TextStyle(
+                        color: selectedComponent?.name == c.name ? const Color(0xFF1E3A8A) : const Color(0xFF475569),
+                        fontSize: 16,
+                        fontWeight: selectedComponent?.name == c.name ? FontWeight.bold : FontWeight.normal,
                       ),
-                      selected: selectedComponent?.name == c.name,
-                      selectedTileColor: Colors.white.withOpacity(0.5),
-                       onTap: () {
-                        setState(() {
-                          selectedComponent = c;
-                          currentProps = Map.from(c.defaultProps);
-                          _updateControllers();
-                          _refreshCounter++;
-                        });
-                      },
                     ),
+                    selected: selectedComponent?.name == c.name,
+                    selectedTileColor: Colors.white.withOpacity(0.5),
+                    onTap: () {
+                      setState(() {
+                        selectedComponent = c;
+                        currentProps = Map.from(c.defaultProps);
+                        _updateControllers();
+                        _refreshCounter++;
+                      });
+                    },
                   ),
                 ),
+              ),
               const SizedBox(height: 8),
             ],
           ),
@@ -279,7 +319,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
 
   Widget _preview() {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -294,7 +334,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                     selectedComponent?.name ?? "Select Component",
                     style: const TextStyle(
                       color: Color(0xFF1E3A8A),
-                      fontSize: 24,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -309,24 +349,6 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                 ],
               ),
               const Spacer(),
-              // Mobile Indicator (just a label now)
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF3B82F6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: const [
-                    Icon(Icons.phone_iphone, color: Colors.white, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      "Mobile View",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 32),
@@ -336,45 +358,36 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
               padding: EdgeInsets.zero,
               opacity: 0.1, // Slightly more visible glass for light mode
               borderRadius: BorderRadius.circular(24),
-              child: Column(
-                children: [
-                   Expanded(
-                    child: Center(
-                      child: SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.all(40),
-                          child: selectedComponent == null
-                              ? const Text(
-                                  "Select Component to Preview",
-                                  style: TextStyle(color: Color(0xFF94A3B8)),
-                                )
-                              : AnimatedContainer(
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                  width: isMobile ? 375 : null,
-                                  height: isMobile ? 667 : null,
-                                  decoration: BoxDecoration(
-                                    
-                                  ),
-                                  clipBehavior: Clip.antiAlias,
-                                  child: Center(
-                                    key: ValueKey("${selectedComponent!.name}_$_refreshCounter"),
-                                    child: selectedComponent!.builder(
-                                      currentProps,
-                                      onPropChanged: (key, val) {
-                                        setState(() {
-                                          currentProps[key] = val;
-                                          _updateControllers();
-                                        });
-                                      },
-                                    ),
-                                  ),
-                                ),
+              child: Center(
+                    child: selectedComponent == null
+                      ? const Text(
+                          "Select Component to Preview",
+                          style: TextStyle(color: Color(0xFF94A3B8)),
+                        )
+                      : FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              // Pages need a minimum "screen" size to layout correctly
+                              minWidth: selectedComponent?.category == "Pages" ? 375 : 0,
+                              minHeight: selectedComponent?.category == "Pages" ? 812 : 0,
+                              maxWidth: selectedComponent?.category == "Pages" ? 375 : double.infinity,
+                              maxHeight: selectedComponent?.category == "Pages" ? 812 : double.infinity,
+                            ),
+                            child: Center(
+                              key: ValueKey("${selectedComponent!.name}_$_refreshCounter"),
+                              child: selectedComponent!.builder(
+                                currentProps,
+                                onPropChanged: (key, val) {
+                                  setState(() {
+                                    currentProps[key] = val;
+                                    _updateControllers();
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ),
           ),
@@ -405,31 +418,34 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
         children: [
           // Tab Header
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
               color: const Color(0xFFF1F5F9),
               border: Border(bottom: BorderSide(color: Colors.black.withAlpha(10))),
             ),
-            child: Row(
-              children: [
-                _buildPanelTab("Properties", Icons.tune_rounded, 0),
-                const SizedBox(width: 8),
-                _buildPanelTab("View Code", Icons.code_rounded, 1),
-                const Spacer(),
-                if (_selectedRightTab == 0)
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: const Icon(Icons.refresh_rounded, color: Color(0xFF64748B), size: 20),
-                    onPressed: () {
-                      setState(() {
-                        currentProps = Map.from(selectedComponent!.defaultProps);
-                        _updateControllers();
-                        _refreshCounter++;
-                      });
-                    },
-                  ),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildPanelTab("Properties", Icons.tune_rounded, 0),
+                  const SizedBox(width: 8),
+                  _buildPanelTab("View Code", Icons.code_rounded, 1),
+                  const SizedBox(width: 8),
+                  if (_selectedRightTab == 0)
+                    IconButton(
+                      padding: const EdgeInsets.all(8),
+                      constraints: const BoxConstraints(),
+                      icon: const Icon(Icons.refresh_rounded, color: Color(0xFF64748B), size: 20),
+                      onPressed: () {
+                        setState(() {
+                          currentProps = Map.from(selectedComponent!.defaultProps);
+                          _updateControllers();
+                          _refreshCounter++;
+                        });
+                      },
+                    ),
+                ],
+              ),
             ),
           ),
           
@@ -490,17 +506,17 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     final code = selectedComponent!.codeBuilder(currentProps);
     
     return Container(
-      color: Colors.white, // Matches the properties panel
+      color: Colors.white,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: SelectableText(
                 code,
                 style: const TextStyle(
-                  color: Color(0xFF334155), // Darker text for light background
+                  color: Color(0xFF334155),
                   fontFamily: 'monospace',
                   fontSize: 14,
                   height: 1.5,
@@ -509,7 +525,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(24.0),
             child: ElevatedButton.icon(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: code));
@@ -525,10 +541,11 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
               icon: const Icon(Icons.copy_rounded, size: 18),
               label: const Text("Copy Code"),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E3A8A), // Use primary blue
+                backgroundColor: const Color(0xFF1E3A8A),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 20),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
               ),
             ),
           ),
@@ -541,6 +558,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Render all properties dynamically
           ...currentProps.entries.map((entry) {
@@ -549,34 +567,34 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
 
             if (value is bool) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 24),
                 child: _propertyBoolInput(_capitalize(key), key),
               );
             } else if (value is double || value is int) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 24),
                 child: _propertyNumericInput(_capitalize(key), key),
               );
             } else if (value is Color) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 24),
                 child: _propertyColorInput(_capitalize(key), key),
               );
             } else if (value is String) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 24),
                 child: _propertyTextInput(_capitalize(key), key),
               );
             } else if (value is FontWeight) {
               return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 24),
                 child: _propertyFontWeightInput(_capitalize(key), key),
               );
             }
             return const SizedBox();
           }),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           _propertyGroup(
             title: "Component Info",
             children: [
@@ -585,6 +603,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
               _infoRow("Props", currentProps.length.toString()),
             ],
           ),
+          const SizedBox(height: 40), // Bottom padding for scroll
         ],
       ),
     );
@@ -602,7 +621,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
         children: [
           Text(
             title,
-            style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           ...children,
@@ -615,7 +634,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     return SwitchListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      title: Text(label, style: const TextStyle(color: Color(0xFF334155), fontSize: 18)),
+      title: Text(label, style: const TextStyle(color: Color(0xFF334155), fontSize: 14)),
       value: currentProps[key] ?? false,
       onChanged: (val) => setState(() => currentProps[key] = val),
       activeColor: const Color(0xFFFF40B4),
@@ -629,13 +648,13 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
         const SizedBox(height: 8),
         TextField(
           enabled: !disabled,
           style: TextStyle(
             color: disabled ? const Color(0xFF94A3B8) : const Color(0xFF334155),
-            fontSize: 18,
+            fontSize: 14,
           ),
           controller: controller,
           onChanged: (val) => setState(() => currentProps[key] = val),
@@ -666,7 +685,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 15)),
+            Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
             SizedBox(
               width: 60,
               height: 24,
@@ -674,7 +693,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                 enabled: !disabled,
                 controller: controller,
                 textAlign: TextAlign.right,
-                style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 14, fontWeight: FontWeight.bold),
                 decoration: const InputDecoration(
                   isDense: true,
                   border: InputBorder.none,
@@ -743,7 +762,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
         const SizedBox(height: 12),
         // Color presets
         Wrap(
@@ -802,7 +821,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                   currentColor.value.toRadixString(16).substring(2).toUpperCase(),
                   style: const TextStyle(
                     color: Color(0xFF1E3A8A),
-                    fontSize: 16,
+                    fontSize: 14,
                     fontFamily: 'monospace',
                   ),
                 ),
@@ -820,8 +839,8 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 15)),
-          Text(value, style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 15, fontWeight: FontWeight.bold)),
+          Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+          Text(value, style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 13, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -849,7 +868,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 15)),
+        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -875,7 +894,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
           label,
           style: TextStyle(
             color: isSelected ? Colors.white : const Color(0xFF475569),
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),

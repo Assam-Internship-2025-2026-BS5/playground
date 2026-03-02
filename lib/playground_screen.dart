@@ -14,7 +14,6 @@ class PlaygroundScreen extends StatefulWidget {
 class _PlaygroundScreenState extends State<PlaygroundScreen> {
   ComponentMetadata? selectedComponent;
   Map<String, dynamic> currentProps = {};
-  bool isMobile = true;
   final Map<String, TextEditingController> _controllers = {};
   int _refreshCounter = 0;
   
@@ -66,7 +65,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
           color: Color(0xFFF8FAFC), // Clean white-ish background
         ),
         child: Column(
-          children: [
+          children: [  
             _header(),
             Expanded(
               child: Row(
@@ -74,7 +73,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                 children: [
                   // Sidebar
                   Container(
-                    width: 400,
+                    width: 300,
                     decoration: BoxDecoration(
                       color: const Color(0xFFD0DDF2), // Light blue-grey tint for sidebar
                       border: Border(right: BorderSide(color: Colors.black.withAlpha(20), width: 1)),
@@ -92,7 +91,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                   ),
                   // Properties
                   SizedBox(
-                    width: 400,
+                    width: 300,
                     child: _properties(),
                   ),
                 ],
@@ -139,7 +138,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color(0xFF1E3A8A), // Deep blue for header
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -161,7 +160,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
             "COMPONENTS",
             style: TextStyle(
               color: Color(0xFF475569),
-              fontSize: 20,
+              fontSize: 16,
               letterSpacing: 1.2,
             ),
           ),
@@ -209,7 +208,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                   style: const TextStyle(
                     color: Color(0xFF1E3A8A),
                     fontWeight: FontWeight.bold,
-                    fontSize: 24,
+                    fontSize: 18,
                   ),
                 ),
                 AnimatedRotation(
@@ -245,7 +244,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                         c.name,
                         style: TextStyle(
                           color: selectedComponent?.name == c.name ? const Color(0xFF1E3A8A) : const Color(0xFF475569),
-                          fontSize: 20,
+                          fontSize: 16,
                           fontWeight: selectedComponent?.name == c.name ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
@@ -276,7 +275,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
 
   Widget _preview() {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -291,7 +290,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                     selectedComponent?.name ?? "Select Component",
                     style: const TextStyle(
                       color: Color(0xFF1E3A8A),
-                      fontSize: 24,
+                      fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -306,24 +305,6 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                 ],
               ),
               const Spacer(),
-              // Mobile Indicator (just a label now)
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF3B82F6),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: const [
-                    Icon(Icons.phone_iphone, color: Colors.white, size: 20),
-                    SizedBox(width: 8),
-                    Text(
-                      "Mobile View",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 32),
@@ -334,32 +315,27 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
               opacity: 0.1, // Slightly more visible glass for light mode
               borderRadius: BorderRadius.circular(24),
               child: Center(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(40),
                     child: selectedComponent == null
-                        ? const Text(
-                            "Select Component to Preview",
-                            style: TextStyle(color: Color(0xFF94A3B8)),
-                          )
-                        : AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                            width: isMobile ? 375 : null,
-                            height: isMobile ? 667 : null,
-                            decoration: BoxDecoration(
-                              color: isMobile ? Colors.white : Colors.transparent,
-                              borderRadius: BorderRadius.circular(isMobile ? 24 : 0),
-                              border: isMobile ? Border.all(color: const Color(0xFFE2E8F0), width: 2) : null,
+                      ? const Text(
+                          "Select Component to Preview",
+                          style: TextStyle(color: Color(0xFF94A3B8)),
+                        )
+                      : FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              // Pages need a minimum "screen" size to layout correctly
+                              minWidth: selectedComponent?.category == "Pages" ? 375 : 0,
+                              minHeight: selectedComponent?.category == "Pages" ? 812 : 0,
+                              maxWidth: selectedComponent?.category == "Pages" ? 375 : double.infinity,
+                              maxHeight: selectedComponent?.category == "Pages" ? 812 : double.infinity,
                             ),
-                            clipBehavior: Clip.antiAlias,
                             child: Center(
                               key: ValueKey("${selectedComponent!.name}_$_refreshCounter"),
                               child: selectedComponent!.builder(currentProps),
                             ),
                           ),
-                  ),
-                ),
+                        ),
               ),
             ),
           ),
@@ -385,7 +361,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                 "PROPERTIES",
                 style: TextStyle(
                   color: Color(0xFF475569),
-                  fontSize: 20,
+                  fontSize: 16,
                   letterSpacing: 1.2,
                 ),
               ),
@@ -463,7 +439,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
         children: [
           Text(
             title,
-            style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           ...children,
@@ -476,7 +452,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     return SwitchListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      title: Text(label, style: const TextStyle(color: Color(0xFF334155), fontSize: 18)),
+      title: Text(label, style: const TextStyle(color: Color(0xFF334155), fontSize: 14)),
       value: currentProps[key] ?? false,
       onChanged: (val) => setState(() => currentProps[key] = val),
       activeColor: const Color(0xFFFF40B4),
@@ -490,13 +466,13 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
         const SizedBox(height: 8),
         TextField(
           enabled: !disabled,
           style: TextStyle(
             color: disabled ? const Color(0xFF94A3B8) : const Color(0xFF334155),
-            fontSize: 18,
+            fontSize: 14,
           ),
           controller: controller,
           onChanged: (val) => setState(() => currentProps[key] = val),
@@ -527,7 +503,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 15)),
+            Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
             SizedBox(
               width: 60,
               height: 24,
@@ -535,7 +511,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                 enabled: !disabled,
                 controller: controller,
                 textAlign: TextAlign.right,
-                style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 14, fontWeight: FontWeight.bold),
                 decoration: const InputDecoration(
                   isDense: true,
                   border: InputBorder.none,
@@ -604,7 +580,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
         const SizedBox(height: 12),
         // Color presets
         Wrap(
@@ -663,7 +639,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                   currentColor.value.toRadixString(16).substring(2).toUpperCase(),
                   style: const TextStyle(
                     color: Color(0xFF1E3A8A),
-                    fontSize: 16,
+                    fontSize: 14,
                     fontFamily: 'monospace',
                   ),
                 ),
@@ -681,8 +657,8 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 15)),
-          Text(value, style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 15, fontWeight: FontWeight.bold)),
+          Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
+          Text(value, style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 13, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -710,7 +686,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 15)),
+        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -736,7 +712,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
           label,
           style: TextStyle(
             color: isSelected ? Colors.white : const Color(0xFF475569),
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),

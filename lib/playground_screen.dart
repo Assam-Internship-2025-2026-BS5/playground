@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'component_registry.dart';
 import 'component_metadata.dart';
 import 'package:designkit/components/atoms/glass_container.dart';
@@ -25,6 +26,8 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     "Organisms": false,
     "Pages": false,
   };
+
+  int _selectedRightTab = 0; // 0 for Properties, 1 for Code
 
   @override
   void initState() {
@@ -333,38 +336,50 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
               padding: EdgeInsets.zero,
               opacity: 0.1, // Slightly more visible glass for light mode
               borderRadius: BorderRadius.circular(24),
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(40),
-                    child: selectedComponent == null
-                        ? const Text(
-                            "Select Component to Preview",
-                            style: TextStyle(color: Color(0xFF94A3B8)),
-                          )
-                        : AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                            width: isMobile ? 375 : null,
-                            height: isMobile ? 667 : null,
-                            decoration: BoxDecoration(
-                              color: isMobile ? Colors.white : Colors.transparent,
-                              borderRadius: BorderRadius.circular(isMobile ? 24 : 0),
-                              border: isMobile ? Border.all(color: const Color(0xFFE2E8F0), width: 2) : null,
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: Center(
-                              key: ValueKey("${selectedComponent!.name}_$_refreshCounter"),
-                              child: selectedComponent!.builder(currentProps),
-                            ),
-                          ),
+              child: Column(
+                children: [
+                   Expanded(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.all(40),
+                          child: selectedComponent == null
+                              ? const Text(
+                                  "Select Component to Preview",
+                                  style: TextStyle(color: Color(0xFF94A3B8)),
+                                )
+                              : AnimatedContainer(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                  width: isMobile ? 375 : null,
+                                  height: isMobile ? 667 : null,
+                                  decoration: BoxDecoration(
+                                    
+                                  ),
+                                  clipBehavior: Clip.antiAlias,
+                                  child: Center(
+                                    key: ValueKey("${selectedComponent!.name}_$_refreshCounter"),
+                                    child: selectedComponent!.builder(
+                                      currentProps,
+                                      onPropChanged: (key, val) {
+                                        setState(() {
+                                          currentProps[key] = val;
+                                          _updateControllers();
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
         ],
-      ),
+      ), 
     );
   }
 
@@ -374,35 +389,159 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   Widget _properties() {
     if (selectedComponent == null) return const SizedBox();
 
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(left: BorderSide(color: Colors.black.withAlpha(10))),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(5),
+            blurRadius: 15,
+            offset: const Offset(-5, 0),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Tab Header
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              border: Border(bottom: BorderSide(color: Colors.black.withAlpha(10))),
+            ),
+            child: Row(
+              children: [
+                _buildPanelTab("Properties", Icons.tune_rounded, 0),
+                const SizedBox(width: 8),
+                _buildPanelTab("View Code", Icons.code_rounded, 1),
+                const Spacer(),
+                if (_selectedRightTab == 0)
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    icon: const Icon(Icons.refresh_rounded, color: Color(0xFF64748B), size: 20),
+                    onPressed: () {
+                      setState(() {
+                        currentProps = Map.from(selectedComponent!.defaultProps);
+                        _updateControllers();
+                        _refreshCounter++;
+                      });
+                    },
+                  ),
+              ],
+            ),
+          ),
+          
+          // Panel Content
+          Expanded(
+            child: _selectedRightTab == 0 
+              ? _buildPropertiesList()
+              : _buildRightSideCodePanel(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPanelTab(String label, IconData icon, int index) {
+    bool isSelected = _selectedRightTab == index;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedRightTab = index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: Colors.black.withAlpha(5),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            )
+          ] : [],
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isSelected ? const Color(0xFF1E3A8A) : const Color(0xFF64748B),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? const Color(0xFF1E3A8A) : const Color(0xFF64748B),
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRightSideCodePanel() {
+    if (selectedComponent == null) return const Center(child: Text("Select a component"));
+    
+    final code = selectedComponent!.codeBuilder(currentProps);
+    
+    return Container(
+      color: Colors.white, // Matches the properties panel
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: SelectableText(
+                code,
+                style: const TextStyle(
+                  color: Color(0xFF334155), // Darker text for light background
+                  fontFamily: 'monospace',
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: code));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Code copied to clipboard!'),
+                    backgroundColor: const Color(0xFF1E3A8A),
+                    behavior: SnackBarBehavior.floating,
+                    width: 250,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.copy_rounded, size: 18),
+              label: const Text("Copy Code"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E3A8A), // Use primary blue
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPropertiesList() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "PROPERTIES",
-                style: TextStyle(
-                  color: Color(0xFF475569),
-                  fontSize: 20,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.refresh_rounded, color: Color(0xFF475569), size: 20),
-                onPressed: () {
-                  setState(() {
-                    currentProps = Map.from(selectedComponent!.defaultProps);
-                    _updateControllers();
-                    _refreshCounter++;
-                  });
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          
           // Render all properties dynamically
           ...currentProps.entries.map((entry) {
             final key = entry.key;

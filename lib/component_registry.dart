@@ -312,7 +312,6 @@ final List<ComponentMetadata> componentRegistry = [
     category: 'Atoms',
     defaultProps: {
       'hintText': 'Enter text',
-      'maxLength': 20,
       'width': 320.0,
       'fontSize': 22.0,
       'textColor': const Color(0xFF000000),
@@ -323,19 +322,17 @@ final List<ComponentMetadata> componentRegistry = [
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.TextField(
         hintText: props['hintText'] ?? 'Enter text',
-        maxLength: (props['maxLength'] as num?)?.toInt() ?? 20,
         width: (props['width'] as num?)?.toDouble(),
         fontSize: (props['fontSize'] as num?)?.toDouble() ?? 22.0,
         textColor: props['textColor'] ?? const Color(0xFF000000),
         fontWeight: props['fontWeight'] ?? FontWeight.w500,
         borderRadius: (props['borderRadius'] as num?)?.toDouble() ?? 30.0,
-        fillColor: props['fillColor'] ?? const Color(0x1FFFFFFF),
+        fillColor: props['fillColor'] ?? const Color(0xFFE2E8F0),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
       return "TextField(\n"
           "  hintText: '${props['hintText']}',\n"
-          "  maxLength: ${props['maxLength']},\n"
           "  width: ${props['width']},\n"
           "  fontSize: ${props['fontSize']},\n"
           "  textColor: ${_formatColor(props['textColor'])},\n"

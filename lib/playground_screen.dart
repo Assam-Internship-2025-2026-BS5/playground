@@ -600,7 +600,6 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
             children: [
               _infoRow("Name", selectedComponent?.name ?? ""),
               _infoRow("Category", selectedComponent?.category ?? ""),
-              _infoRow("Props", currentProps.length.toString()),
             ],
           ),
           const SizedBox(height: 40), // Bottom padding for scroll

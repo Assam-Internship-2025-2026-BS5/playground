@@ -1,0 +1,21 @@
+# Force GitHub to see the project as 100% Dart
+# Ignore everything by default
+* linguist-detectable=false
+
+# Only detect Dart files
+*.dart linguist-detectable=true
+
+# Mark all platform code and assets as vendored/generated
+android/* linguist-vendored
+ios/* linguist-vendored
+web/* linguist-vendored
+windows/* linguist-vendored
+linux/* linguist-vendored
+macos/* linguist-vendored
+assets/* linguist-vendored
+
+# Ignore specific files
+*.yaml linguist-generated
+*.lock linguist-generated
+.metadata linguist-generated
+problems-report.html linguist-generated

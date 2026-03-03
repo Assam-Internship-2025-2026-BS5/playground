@@ -374,7 +374,8 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                               maxWidth: selectedComponent?.category == "Pages" ? 375 : double.infinity,
                               maxHeight: selectedComponent?.category == "Pages" ? 812 : double.infinity,
                             ),
-                            child: Center(
+                            child: Align(
+                              alignment: selectedComponent!.name == "BottomNav" ? Alignment.bottomCenter : Alignment.center,
                               key: ValueKey("${selectedComponent!.name}_$_refreshCounter"),
                               child: selectedComponent!.builder(
                                 currentProps,

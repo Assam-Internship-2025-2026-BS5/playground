@@ -645,6 +645,17 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     bool disabled = currentProps["disabled"] ?? false;
     final controller = _controllers[key];
     
+    // Add validation based on key name
+    List<TextInputFormatter> formatters = [];
+    if (key.toLowerCase().contains("name")) {
+      // Only allow letters and spaces
+      formatters.add(FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')));
+    } else if (key.toLowerCase().contains("id")) {
+      // Only allow numbers and limit to 9 digits
+      formatters.add(FilteringTextInputFormatter.digitsOnly);
+      formatters.add(LengthLimitingTextInputFormatter(9));
+    }
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -652,6 +663,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
         const SizedBox(height: 8),
         TextField(
           enabled: !disabled,
+          inputFormatters: formatters,
           style: TextStyle(
             color: disabled ? const Color(0xFF94A3B8) : const Color(0xFF334155),
             fontSize: 14,

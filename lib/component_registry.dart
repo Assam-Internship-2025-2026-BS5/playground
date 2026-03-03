@@ -13,6 +13,7 @@ import 'package:designkit/components/molecules/scan.dart';
 import 'package:designkit/components/molecules/action_items.dart';
 import 'package:designkit/components/molecules/inline_action_row.dart';
 import 'package:designkit/components/organisms/header.dart';
+import 'package:designkit/components/organisms/app_header.dart';
 import 'package:designkit/components/organisms/bottom_nav.dart';
 import 'package:designkit/components/organisms/auth_section.dart';
 
@@ -209,6 +210,34 @@ final List<ComponentMetadata> componentRegistry = [
           "  activeColor: ${_formatColor(props['activeColor'])},\n"
           "  inactiveColor: ${_formatColor(props['inactiveColor'])},\n"
           "  onNavTap: (label) => print(label),\n"
+          ")";
+    },
+  ),
+  ComponentMetadata(
+    name: 'AppHeader',
+    category: 'Organisms',
+    defaultProps: {
+      'userName': 'MHONBENI NGULLIE',
+      'customerId': '******1010',
+      'logoPath': 'assets/hdfc_logo.png',
+      'width': 375.0,
+    },
+    builder: (Map<String, dynamic> props, {onPropChanged}) {
+      return AppHeader(
+        userName: props['userName'] ?? 'MHONBENI NGULLIE',
+        customerId: props['customerId'] ?? '******1010',
+        logoPath: props['logoPath'] ?? 'assets/hdfc_logo.png',
+        width: (props['width'] as num?)?.toDouble() ?? 375.0,
+        onNotificationTap: () => debugPrint('Notification Tapped'),
+      );
+    },
+    codeBuilder: (Map<String, dynamic> props) {
+      return "AppHeader(\n"
+          "  userName: '${props['userName']}',\n"
+          "  customerId: '${props['customerId']}',\n"
+          "  logoPath: '${props['logoPath']}',\n"
+          "  width: ${props['width']},\n"
+          "  onNotificationTap: () => print('Notification Tapped'),\n"
           ")";
     },
   ),

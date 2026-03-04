@@ -238,7 +238,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
 
     // Filter by search query if present
     if (_searchQuery.isNotEmpty) {
-      items = items.where((c) => c.name.toLowerCase().contains(_searchQuery)).toList();
+      items = items.where((c) => c.name.toLowerCase().startsWith(_searchQuery)).toList();
       // If no items match in this category and we are searching, hide the category
       if (items.isEmpty) return const SizedBox();
     }

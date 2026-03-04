@@ -569,27 +569,27 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
             if (value is bool) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 24),
-                child: _propertyBoolInput(_capitalize(key), key),
+                child: _propertyBoolInput(_formatLabel(key), key),
               );
             } else if (value is double || value is int) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 24),
-                child: _propertyNumericInput(_capitalize(key), key),
+                child: _propertyNumericInput(_formatLabel(key), key),
               );
             } else if (value is Color) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 24),
-                child: _propertyColorInput(_capitalize(key), key),
+                child: _propertyColorInput(_formatLabel(key), key),
               );
             } else if (value is String) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 24),
-                child: _propertyTextInput(_capitalize(key), key),
+                child: _propertyTextInput(_formatLabel(key), key),
               );
             } else if (value is FontWeight) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 24),
-                child: _propertyFontWeightInput(_capitalize(key), key),
+                child: _propertyFontWeightInput(_formatLabel(key), key),
               );
             }
             return const SizedBox();
@@ -609,7 +609,12 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     );
   }
 
-  String _capitalize(String s) => s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+  String _formatLabel(String s) {
+    if (s == 'borderRadius') return 'Rounded Corners';
+    if (s.isEmpty) return s;
+    final result = s.replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (Match m) => '${m[1]} ${m[2]}');
+    return result[0].toUpperCase() + result.substring(1);
+  }
 
   Widget _propertyGroup({required String title, required List<Widget> children}) {
     return GlassContainer(
@@ -686,7 +691,15 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     double max = 1000;
     if (key.toLowerCase().contains("opacity")) max = 1.0;
     if (key.toLowerCase().contains("radius")) max = 100.0;
-    if (key.toLowerCase().contains("offset")) {
+    if (key.toLowerCase().contains("font")) max = 150.0;
+    if (key.toLowerCase().contains("width")) max = 750.0;
+    if (key.toLowerCase().contains("offsetx")) {
+      min = -300;
+      max = 300;
+    } else if (key.toLowerCase().contains("offsety")) {
+      min = -210;
+      max = 210;
+    } else if (key.toLowerCase().contains("offset")) {
       min = -500;
       max = 500;
     }
@@ -723,27 +736,63 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
             ),
           ],
         ),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 2,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-          ),
-          child: Slider(
-            value: value.clamp(min, max),
-            min: min,
-            max: max,
-            onChanged: disabled ? null : (val) {
-              setState(() {
-                currentProps[key] = val;
-                if (controller != null) {
-                  controller.text = max == 1.0 ? val.toStringAsFixed(2) : val.toInt().toString();
-                }
-              });
-            },
-            activeColor: const Color(0xFF3B82F6),
-            inactiveColor: const Color(0xFFE2E8F0),
-          ),
+        Row(
+          children: [
+            IconButton(
+              onPressed: disabled ? null : () {
+                final step = max == 1.0 ? 0.05 : 1.0;
+                final newValue = (value - step).clamp(min, max);
+                setState(() {
+                  currentProps[key] = newValue;
+                  if (controller != null) {
+                    controller.text = max == 1.0 ? newValue.toStringAsFixed(2) : newValue.toInt().toString();
+                  }
+                });
+              },
+              icon: const Icon(Icons.remove_circle_outline, size: 20, color: Color(0xFF3B82F6)),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+            Expanded(
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  trackHeight: 2,
+                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                  overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+                ),
+                child: Slider(
+                  value: value.clamp(min, max),
+                  min: min,
+                  max: max,
+                  onChanged: disabled ? null : (val) {
+                    setState(() {
+                      currentProps[key] = val;
+                      if (controller != null) {
+                        controller.text = max == 1.0 ? val.toStringAsFixed(2) : val.toInt().toString();
+                      }
+                    });
+                  },
+                  activeColor: const Color(0xFF3B82F6),
+                  inactiveColor: const Color(0xFFE2E8F0),
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: disabled ? null : () {
+                final step = max == 1.0 ? 0.05 : 1.0;
+                final newValue = (value + step).clamp(min, max);
+                setState(() {
+                  currentProps[key] = newValue;
+                  if (controller != null) {
+                    controller.text = max == 1.0 ? newValue.toStringAsFixed(2) : newValue.toInt().toString();
+                  }
+                });
+              },
+              icon: const Icon(Icons.add_circle_outline, size: 20, color: Color(0xFF3B82F6)),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+          ],
         ),
       ],
     );
@@ -751,95 +800,19 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
 
   Widget _propertyColorInput(String label, String key) {
     final Color currentColor = currentProps[key] ?? Colors.white;
-    
-    // Define color presets with banking-friendly palette
-    final List<Color> presets = [
-      // Default HDFC colors
-      const Color.fromARGB(255, 174, 195, 215),
-      const Color.fromARGB(255, 141, 177, 231),
-      const Color.fromARGB(255, 200, 220, 240),
-      // HDFC Blue shades
-      const Color(0xFF2938AD),
-      const Color(0xFF5371F9),
-      const Color.fromARGB(255, 32, 66, 255),
-      // Additional professional colors
-      const Color(0xFFFF40B4),
-      Colors.white,
-      Colors.black,
-      Colors.grey,
-      Colors.red,
-      Colors.green,
-    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
         const SizedBox(height: 12),
-        // Color presets
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: presets.map((color) {
-            final isSelected = color.value == currentColor.value;
-            return GestureDetector(
-              onTap: () => setState(() => currentProps[key] = color),
-              child: Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: color,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected ? Colors.white : Colors.white24,
-                    width: isSelected ? 2 : 1,
-                  ),
-                  boxShadow: [
-                    if (isSelected)
-                      BoxShadow(
-                        color: Colors.white.withAlpha(128),
-                        blurRadius: 8,
-                        spreadRadius: 1,
-                      )
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 12),
-        // Custom color input with hex
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: currentColor,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white30),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  currentColor.value.toRadixString(16).substring(2).toUpperCase(),
-                  style: const TextStyle(
-                    color: Color(0xFF1E3A8A),
-                    fontSize: 14,
-                    fontFamily: 'monospace',
-                  ),
-                ),
-              ),
-            ],
-          ),
+        _HSVColorPicker(
+          color: currentColor,
+          onColorChanged: (newColor) {
+            setState(() {
+              currentProps[key] = newColor;
+            });
+          },
         ),
       ],
     );
@@ -913,4 +886,242 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
       ),
     );
   }
+}
+
+// ================= HSV COLOR PICKER =================
+
+class _HSVColorPicker extends StatefulWidget {
+  final Color color;
+  final ValueChanged<Color> onColorChanged;
+
+  const _HSVColorPicker({
+    required this.color,
+    required this.onColorChanged,
+  });
+
+  @override
+  State<_HSVColorPicker> createState() => _HSVColorPickerState();
+}
+
+class _HSVColorPickerState extends State<_HSVColorPicker> {
+  late HSVColor hsvColor;
+
+  @override
+  void initState() {
+    super.initState();
+    hsvColor = HSVColor.fromColor(widget.color);
+  }
+
+  @override
+  void didUpdateWidget(_HSVColorPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.color != oldWidget.color) {
+      hsvColor = HSVColor.fromColor(widget.color);
+    }
+  }
+
+  void _updateColor() {
+    widget.onColorChanged(hsvColor.toColor());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // S/V Box
+        GestureDetector(
+          onPanUpdate: (details) {
+            final RenderBox box = context.findRenderObject() as RenderBox;
+            final Offset localOffset = box.globalToLocal(details.globalPosition);
+            setState(() {
+              hsvColor = hsvColor.withSaturation((localOffset.dx / 250).clamp(0.0, 1.0));
+              hsvColor = hsvColor.withValue((1.0 - (localOffset.dy / 150)).clamp(0.0, 1.0));
+            });
+            _updateColor();
+          },
+          onTapDown: (details) {
+            setState(() {
+              hsvColor = hsvColor.withSaturation((details.localPosition.dx / 250).clamp(0.0, 1.0));
+              hsvColor = hsvColor.withValue((1.0 - (details.localPosition.dy / 150)).clamp(0.0, 1.0));
+            });
+            _updateColor();
+          },
+          child: Container(
+            height: 150,
+            width: double.infinity,
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.black.withOpacity(0.1)),
+            ),
+            child: Stack(
+              children: [
+                CustomPaint(
+                  size: Size.infinite,
+                  painter: _SVPainter(hsvColor.hue),
+                ),
+                Positioned(
+                  left: hsvColor.saturation * 250 - 8,
+                  top: (1.0 - hsvColor.value) * 150 - 8,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 4),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        // Hue Slider
+        GestureDetector(
+          onHorizontalDragUpdate: (details) {
+            setState(() {
+              hsvColor = hsvColor.withHue((details.localPosition.dx / 250 * 360).clamp(0.0, 360.0));
+            });
+            _updateColor();
+          },
+          onTapDown: (details) {
+            setState(() {
+              hsvColor = hsvColor.withHue((details.localPosition.dx / 250 * 360).clamp(0.0, 360.0));
+            });
+            _updateColor();
+          },
+          child: Container(
+            height: 12,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: Colors.black.withOpacity(0.05)),
+            ),
+            child: CustomPaint(
+              size: Size.infinite,
+              painter: _HuePainter(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Hex Display
+        GestureDetector(
+          onTap: () {
+            final hexCode = widget.color.value.toRadixString(16).substring(2).toUpperCase();
+            Clipboard.setData(ClipboardData(text: hexCode));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Copied #$hexCode to clipboard'),
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: const Color(0xFF1E3A8A),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.03),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: widget.color,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.black.withAlpha(10)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: widget.color.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "HEX CODE",
+                      style: TextStyle(
+                        color: Color(0xFF94A3B8),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                    Text(
+                      widget.color.value.toRadixString(16).substring(2).toUpperCase(),
+                      style: const TextStyle(
+                        color: Color(0xFF1E3A8A),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Icon(Icons.copy_rounded, color: Colors.blue.withOpacity(0.5), size: 18),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SVPainter extends CustomPainter {
+  final double hue;
+  _SVPainter(this.hue);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Rect rect = Offset.zero & size;
+    final Gradient hGradient = LinearGradient(
+      colors: [Colors.white, HSVColor.fromAHSV(1.0, hue, 1.0, 1.0).toColor()],
+    );
+    final Gradient vGradient = const LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Colors.transparent, Colors.black],
+    );
+
+    canvas.drawRect(rect, Paint()..shader = hGradient.createShader(rect));
+    canvas.drawRect(rect, Paint()..shader = vGradient.createShader(rect)..blendMode = BlendMode.multiply);
+  }
+
+  @override
+  bool shouldRepaint(_SVPainter oldDelegate) => oldDelegate.hue != hue;
+}
+
+class _HuePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Rect rect = Offset.zero & size;
+    final List<Color> colors = List.generate(360, (index) => HSVColor.fromAHSV(1.0, index.toDouble(), 1.0, 1.0).toColor());
+    final Gradient gradient = LinearGradient(colors: colors);
+    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(6)), Paint()..shader = gradient.createShader(rect));
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

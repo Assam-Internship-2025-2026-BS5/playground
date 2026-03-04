@@ -51,28 +51,23 @@ final List<ComponentMetadata> componentRegistry = [
       'title': 'Scan',
       'subtitle': '',
       'popupTitle': 'Scan Code',
-      'qrData': 'https://www.hdfcbank.com',
-      'imagePath': 'assets/Qr_scan.png',
       'textColor': const Color(0xFF1E3A8A),
-      'accentColor': const Color(0xFF1E3A8A),
       'width': 484.0,
       'height': 180.0,
-      'blur': 15.0,
-      'opacity': 0.2,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return Scan(
         title: props['title'] ?? 'Scan',
         subtitle: props['subtitle'] ?? '',
         popupTitle: props['popupTitle'] ?? 'Scan Code',
-        qrData: props['qrData'] ?? '',
-        imagePath: props['imagePath'] ?? 'assets/Qr_scan.png',
+        qrData: 'https://www.hdfcbank.com',
+        imagePath: 'assets/Qr_scan.png',
         textColor: props['textColor'] ?? const Color(0xFF1E3A8A),
-        accentColor: props['accentColor'] ?? const Color(0xFF1E3A8A),
+        accentColor: const Color(0xFF1E3A8A),
         width: (props['width'] as num?)?.toDouble() ?? 484.0,
         height: (props['height'] as num?)?.toDouble() ?? 180.0,
-        blur: (props['blur'] as num?)?.toDouble() ?? 15.0,
-        opacity: (props['opacity'] as num?)?.toDouble() ?? 0.2,
+        blur: 15.0,
+        opacity: 0.2,
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
@@ -80,14 +75,9 @@ final List<ComponentMetadata> componentRegistry = [
           "  title: '${props['title']}',\n"
           "  subtitle: '${props['subtitle']}',\n"
           "  popupTitle: '${props['popupTitle']}',\n"
-          "  qrData: '${props['qrData']}',\n"
-          "  imagePath: '${props['imagePath']}',\n"
           "  textColor: ${_formatColor(props['textColor'])},\n"
-          "  accentColor: ${_formatColor(props['accentColor'])},\n"
           "  width: ${props['width']},\n"
           "  height: ${props['height']},\n"
-          "  blur: ${props['blur']},\n"
-          "  opacity: ${props['opacity']},\n"
           "  onTap: () => print('Tapped'),\n"
           ")";
     },
@@ -219,14 +209,13 @@ final List<ComponentMetadata> componentRegistry = [
     defaultProps: {
       'userName': 'MHONBENI NGULLIE',
       'customerId': '******1010',
-      'logoPath': 'assets/hdfc_logo.png',
       'width': 375.0,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return AppHeader(
         userName: props['userName'] ?? 'MHONBENI NGULLIE',
         customerId: props['customerId'] ?? '******1010',
-        logoPath: props['logoPath'] ?? 'assets/hdfc_logo.png',
+        logoPath: 'assets/hdfc_logo.png',
         width: (props['width'] as num?)?.toDouble() ?? 375.0,
         onNotificationTap: () => debugPrint('Notification Tapped'),
       );
@@ -235,7 +224,6 @@ final List<ComponentMetadata> componentRegistry = [
       return "AppHeader(\n"
           "  userName: '${props['userName']}',\n"
           "  customerId: '${props['customerId']}',\n"
-          "  logoPath: '${props['logoPath']}',\n"
           "  width: ${props['width']},\n"
           "  onNotificationTap: () => print('Notification Tapped'),\n"
           ")";
@@ -281,7 +269,6 @@ final List<ComponentMetadata> componentRegistry = [
       'fontSize': 20.0,
       'color': Colors.black,
       'fontWeight': FontWeight.normal,
-      'maxLines': 1,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.Text(
@@ -289,7 +276,6 @@ final List<ComponentMetadata> componentRegistry = [
         fontSize: (props['fontSize'] as num?)?.toDouble() ?? 20.0,
         color: props['color'] ?? Colors.black,
         fontWeight: props['fontWeight'] ?? FontWeight.normal,
-        maxLines: (props['maxLines'] as num?)?.toInt(),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
@@ -298,7 +284,6 @@ final List<ComponentMetadata> componentRegistry = [
           "  fontSize: ${props['fontSize']},\n"
           "  color: ${_formatColor(props['color'])},\n"
           "  fontWeight: ${_formatFontWeight(props['fontWeight'])},\n"
-          "  maxLines: ${props['maxLines']},\n"
           "  textAlign: TextAlign.left,\n"
           ")";
     },
@@ -382,8 +367,6 @@ final List<ComponentMetadata> componentRegistry = [
       'offsetX': 0.0,
       'offsetY': 0.0,
       'showShadow': false,
-      'firstImagePath': 'assets/hdfc_logo.png',
-      'secondImagePath': 'assets/now_logo.png',
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.Image(
@@ -392,8 +375,6 @@ final List<ComponentMetadata> componentRegistry = [
         offsetX: (props['offsetX'] as num?)?.toDouble() ?? 0.0,
         offsetY: (props['offsetY'] as num?)?.toDouble() ?? 0.0,
         showShadow: props['showShadow'] ?? false,
-        firstImagePath: props['firstImagePath'] ?? 'assets/hdfc_logo.png',
-        secondImagePath: props['secondImagePath'] ?? 'assets/now_logo.png',
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
@@ -403,8 +384,6 @@ final List<ComponentMetadata> componentRegistry = [
           "  offsetX: ${props['offsetX']},\n"
           "  offsetY: ${props['offsetY']},\n"
           "  showShadow: ${props['showShadow']},\n"
-          "  firstImagePath: '${props['firstImagePath']}',\n"
-          "  secondImagePath: '${props['secondImagePath']}',\n"
           ")";
     },
   ),
@@ -495,7 +474,6 @@ final List<ComponentMetadata> componentRegistry = [
       'color': const Color(0xFF2938AD),
       'underline': true,
       'fontWeight': FontWeight.bold,
-      'width': 200.0,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.TextButton(
@@ -504,7 +482,6 @@ final List<ComponentMetadata> componentRegistry = [
         color: props['color'] ?? const Color(0xFF2938AD),
         fontWeight: props['fontWeight'] ?? FontWeight.bold,
         underline: props['underline'] ?? true,
-        width: (props['width'] as num?)?.toDouble(),
         onPressed: () => debugPrint('TextButton Pressed'),
       );
     },
@@ -515,7 +492,6 @@ final List<ComponentMetadata> componentRegistry = [
           "  color: ${_formatColor(props['color'])},\n"
           "  fontWeight: ${_formatFontWeight(props['fontWeight'])},\n"
           "  underline: ${props['underline']},\n"
-          "  width: ${props['width']},\n"
           "  onPressed: () => print('Pressed'),\n"
           ")";
     },

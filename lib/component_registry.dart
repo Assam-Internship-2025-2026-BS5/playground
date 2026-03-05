@@ -45,27 +45,27 @@ String _formatFontWeight(dynamic weight) {
 
 final List<ComponentMetadata> componentRegistry = [
   ComponentMetadata(
-    name: 'Scan',
+    name: 'QR Scan',
     category: 'Molecules',
     defaultProps: {
-      'title': 'Scan',
+      'title': 'QR Scan',
       'subtitle': '',
       'popupTitle': 'Scan Code',
-      'textColor': const Color(0xFF1E3A8A),
-      'width': 484.0,
-      'height': 180.0,
+      'textColor': const Color(0xFF000000),
+      'width': 130.0,
+      'height': 130.0,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return Scan(
-        title: props['title'] ?? 'Scan',
+        title: props['title'] ?? 'QR Scan',
         subtitle: props['subtitle'] ?? '',
         popupTitle: props['popupTitle'] ?? 'Scan Code',
         qrData: 'https://www.hdfcbank.com',
         imagePath: 'assets/Qr_scan.png',
-        textColor: props['textColor'] ?? const Color(0xFF1E3A8A),
-        accentColor: const Color(0xFF1E3A8A),
-        width: (props['width'] as num?)?.toDouble() ?? 484.0,
-        height: (props['height'] as num?)?.toDouble() ?? 180.0,
+        textColor: props['textColor'] ?? const Color(0xFF000000),
+        accentColor: const Color(0xFF8B5CF6),
+        width: (props['width'] as num?)?.toDouble() ?? 130.0,
+        height: (props['height'] as num?)?.toDouble() ?? 130.0,
         blur: 15.0,
         opacity: 0.2,
       );
@@ -362,16 +362,12 @@ final List<ComponentMetadata> componentRegistry = [
     name: 'Image',
     category: 'Atoms',
     defaultProps: {
-      'width': 240.0,
-      'height': 31.0,
       'offsetX': 0.0,
       'offsetY': 0.0,
       'showShadow': false,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.Image(
-        width: (props['width'] as num?)?.toDouble() ?? 240.0,
-        height: (props['height'] as num?)?.toDouble() ?? 31.0,
         offsetX: (props['offsetX'] as num?)?.toDouble() ?? 0.0,
         offsetY: (props['offsetY'] as num?)?.toDouble() ?? 0.0,
         showShadow: props['showShadow'] ?? false,
@@ -379,8 +375,6 @@ final List<ComponentMetadata> componentRegistry = [
     },
     codeBuilder: (Map<String, dynamic> props) {
       return "Image(\n"
-          "  width: ${props['width']},\n"
-          "  height: ${props['height']},\n"
           "  offsetX: ${props['offsetX']},\n"
           "  offsetY: ${props['offsetY']},\n"
           "  showShadow: ${props['showShadow']},\n"

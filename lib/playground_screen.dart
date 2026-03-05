@@ -116,7 +116,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
       height: 70,
       padding: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.blueGrey[50],
         border: Border(bottom: BorderSide(color: Colors.black.withAlpha(20), width: 1)),
       ),
       child: Stack(

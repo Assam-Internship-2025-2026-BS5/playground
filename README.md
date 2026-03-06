@@ -1,16 +1,44 @@
-# designkit_playground
+# HDFC Design Kit Playground
 
-A new Flutter project.
+A Flutter-based UI design kit and interactive playground.
 
-## Getting Started
+## Architecture
 
-This project is a starting point for a Flutter application.
+Flutter Web → Docker → AWS ECS → Load Balancer
 
-A few resources to get you started if this is your first Flutter project:
+## Technologies
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Flutter
+- Docker
+- GitHub Actions
+- AWS ECS
+- Terraform
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Run locally
+
+```
+flutter pub get
+flutter run
+```
+
+## Build Web
+
+```
+flutter build web
+```
+
+## Docker Build
+
+```
+docker build -t playground .
+docker run -p 8080:80 playground
+```
+
+## CI/CD
+
+GitHub Actions automatically:
+
+1. Builds Flutter Web
+2. Builds Docker image
+3. Pushes image to Amazon ECR
+4. Deploys to ECS

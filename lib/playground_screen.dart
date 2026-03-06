@@ -40,6 +40,12 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     }
   }
 
+  String _formatNum(num value, {bool isOpacity = false}) {
+    if (isOpacity) return value.toStringAsFixed(2);
+    if (value % 1 == 0) return value.toInt().toString();
+    return value.toStringAsFixed(1);
+  }
+
   void _updateControllers() {
     // Clear existing if needed, or just update
     _controllers.forEach((key, controller) => controller.dispose());
@@ -49,8 +55,9 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
       if (value is String) {
         _controllers[key] = TextEditingController(text: value);
       } else if (value is double || value is int) {
+        bool isOpacity = key.toLowerCase().contains("opacity");
         _controllers[key] = TextEditingController(
-          text: value is double ? value.toStringAsFixed(2) : value.toString(),
+          text: _formatNum(value as num, isOpacity: isOpacity),
         );
       }
     });
@@ -65,90 +72,139 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          color: Color(0xFFF8FAFC), // Clean white-ish background
-        ),
-        child: Column(
-          children: [  
-            _header(),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Sidebar
-                  Container(
-                    width: 300,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD0DDF2), // Light blue-grey tint for sidebar
-                      border: Border(right: BorderSide(color: Colors.black.withAlpha(20), width: 1)),
-                    ),
-                    child: _sidebar(),
-                  ),
-                  // Preview
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(right: BorderSide(color: Colors.black.withAlpha(20), width: 1)),
-                      ),
-                      child: _preview(),
-                    ),
-                  ),
-                  // Properties
-                  SizedBox(
-                    width: 300,
-                    child: _properties(),
-                  ),
-                ],
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isMobile = constraints.maxWidth < 900;
+        
+        return Scaffold(
+          drawer: isMobile ? Drawer(
+            width: 300,
+            child: _sidebar(),
+          ) : null,
+          endDrawer: isMobile ? Drawer(
+            width: 300,
+            child: _properties(),
+          ) : null,
+          body: Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFFF8FAFC), // Clean white-ish background
             ),
-          ],
-        ),
-      ),
+            child: Column(
+              children: [  
+                _header(isMobile: isMobile),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Sidebar (Desktop only)
+                      if (!isMobile)
+                        Container(
+                          width: 300,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD0DDF2), // Light blue-grey tint for sidebar
+                            border: Border(right: BorderSide(color: Colors.black.withAlpha(20), width: 1)),
+                          ),
+                          child: _sidebar(),
+                        ),
+                      
+                      // Preview (Always visible)
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border(
+                              right: !isMobile ? BorderSide(color: Colors.black.withAlpha(20), width: 1) : BorderSide.none,
+                            ),
+                          ),
+                          child: _preview(),
+                        ),
+                      ),
+                      
+                      // Properties (Desktop only)
+                      if (!isMobile)
+                        SizedBox(
+                          width: 300,
+                          child: _properties(),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
     );
   }
 
   // ================= HEADER =================
 
-  Widget _header() {
+  Widget _header({bool isMobile = false}) {
     return Container(
       height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.symmetric(horizontal: 16), // Slightly tighter for mobile
       decoration: BoxDecoration(
         color: Colors.blueGrey[50],
         border: Border(bottom: BorderSide(color: Colors.black.withAlpha(20), width: 1)),
       ),
-      child: Stack(
+      child: Row(
         children: [
-          // Left Side: HDFC Logo
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  'assets/hdfc_logo.png',
-                  height: 28,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.account_balance_rounded, color: Color(0xFF1E3A8A), size: 28),
-                ),
-              ],
+          // Left Side: Sidebar Toggle (Mobile) or HDFC Logo (Desktop)
+          if (isMobile)
+            Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.menu_rounded, color: Color(0xFF1E3A8A)),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
             ),
+          
+          const SizedBox(width: 8),
+          
+          Image.asset(
+            'assets/hdfc_logo.png',
+            height: 28,
+            errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.account_balance_rounded, color: Color(0xFF1E3A8A), size: 28),
           ),
-          // Center Side: Main Title
-          const Align(
-            alignment: Alignment.center,
-            child: Text(
+          
+          if (!isMobile) ...[
+            const Spacer(),
+            const Text(
               "Design System Playground",
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Color(0xFF1E3A8A), // Deep blue for header
+                color: Color(0xFF1E3A8A),
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-          ),
+            const Spacer(),
+          ] else
+            const Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  "Playground",
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Color(0xFF1E3A8A),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
+          // Right Side: Properties Toggle (Mobile) or Spacer/Registry Info (Desktop)
+          if (isMobile)
+            Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.tune_rounded, color: Color(0xFF1E3A8A)),
+                onPressed: () => Scaffold.of(context).openEndDrawer(),
+              ),
+            )
+          else
+            const SizedBox(width: 48), // Balance for logo
         ],
       ),
     );
@@ -712,17 +768,27 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
           children: [
             Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
             SizedBox(
-              width: 60,
+              width: 70, // Slightly wider for suffix
               height: 24,
               child: TextField(
                 enabled: !disabled,
                 controller: controller,
                 textAlign: TextAlign.right,
                 style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 14, fontWeight: FontWeight.bold),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   isDense: true,
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.zero,
+                  suffixText: (key.toLowerCase().contains("font") || 
+                               key.toLowerCase().contains("radius") || 
+                               key.toLowerCase().contains("width") || 
+                               key.toLowerCase().contains("height") || 
+                               key.toLowerCase().contains("offset")) ? " px" : null,
+                  suffixStyle: const TextStyle(
+                    color: Color(0xFF64748B),
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
                 onChanged: (val) {
                   final parsedValue = double.tryParse(val);
@@ -745,7 +811,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                 setState(() {
                   currentProps[key] = newValue;
                   if (controller != null) {
-                    controller.text = max == 1.0 ? newValue.toStringAsFixed(2) : newValue.toInt().toString();
+                    controller.text = _formatNum(newValue, isOpacity: max == 1.0);
                   }
                 });
               },
@@ -768,7 +834,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                     setState(() {
                       currentProps[key] = val;
                       if (controller != null) {
-                        controller.text = max == 1.0 ? val.toStringAsFixed(2) : val.toInt().toString();
+                        controller.text = _formatNum(val, isOpacity: max == 1.0);
                       }
                     });
                   },
@@ -784,7 +850,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                 setState(() {
                   currentProps[key] = newValue;
                   if (controller != null) {
-                    controller.text = max == 1.0 ? newValue.toStringAsFixed(2) : newValue.toInt().toString();
+                    controller.text = _formatNum(newValue, isOpacity: max == 1.0);
                   }
                 });
               },

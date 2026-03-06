@@ -1,4 +1,4 @@
-name: Deploy to ECS
+name: Deploy Flutter Web to AWS ECS
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - main
 
 env:
-  AWS_REGION: us-east-1
-  ECR_REPOSITORY: hdfc-playground
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
   ECS_SERVICE: hdfc-playground-service
   ECS_CLUSTER: default
   ECS_TASK_DEFINITION: ecs-task-definition.json
@@ -18,7 +18,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Setup Flutter
@@ -32,37 +33,48 @@ jobs:
       - name: Build Flutter Web
         run: flutter build web
 
-      - name: Configure AWS credentials
+      # ---------------- AWS LOGIN ---------------- #
+
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build Docker Image
+      # ---------------- DOCKER BUILD ---------------- #
+
+      - name: Build Docker image
         run: |
           docker build -t $ECR_REPOSITORY .
-          docker tag $ECR_REPOSITORY:latest 885599572607.dkr.ecr.us-east-1.amazonaws.com/hdfc-playground:latest
 
-      - name: Push Image to ECR
+      - name: Tag Docker image
         run: |
-          docker push 885599572607.dkr.ecr.us-east-1.amazonaws.com/hdfc-playground:latest
+          docker tag $ECR_REPOSITORY:latest ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
 
-      - name: Render ECS task definition
-        id: task-def
+      - name: Push Docker image to ECR
+        run: |
+          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
+
+      # ---------------- ECS DEPLOY ---------------- #
+
+      - name: Fill in the new image ID in ECS task definition
+        id: render-task
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: ${{ env.ECS_TASK_DEFINITION }}
           container-name: ${{ env.CONTAINER_NAME }}
-          image: 885599572607.dkr.ecr.us-east-1.amazonaws.com/hdfc-playground:latest
+          image: ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
 
-      - name: Deploy to ECS
+      - name: Deploy ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          task-definition: ${{ steps.render-task.outputs.task-definition }}
           service: ${{ env.ECS_SERVICE }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true

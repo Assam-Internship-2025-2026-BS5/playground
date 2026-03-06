@@ -11,8 +11,16 @@ jobs:
 
     steps:
 
-      - name: Checkout code
+      # Checkout playground repo (default)
+      - name: Checkout playground repository
         uses: actions/checkout@v3
+
+      # Checkout designkit repo as a sibling directory
+      - name: Checkout designkit repository
+        uses: actions/checkout@v3
+        with:
+          repository: Assam-Internship-2025-2026-BS5/designkit
+          path: ../designkit
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2

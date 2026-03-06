@@ -15,7 +15,9 @@ jobs:
       - name: Checkout Playground
         uses: actions/checkout@v3
         with:
+          repository: Assam-Internship-2025-2026-BS5/playground
           path: playground
+          ref: main
 
       # Checkout designkit repo
       - name: Checkout DesignKit
@@ -23,7 +25,7 @@ jobs:
         with:
           repository: Assam-Internship-2025-2026-BS5/designkit
           path: designkit
-          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
 
       # Setup Flutter
       - name: Setup Flutter
@@ -32,7 +34,7 @@ jobs:
           channel: stable
 
       # Install dependencies
-      - name: Install Flutter Dependencies
+      - name: Install Flutter dependencies
         run: |
           cd playground
           flutter pub get
@@ -52,22 +54,22 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Login to ECR
+      # Login to Amazon ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # Build Docker image
+      # Build Docker Image
       - name: Build Docker Image
         run: |
           docker build -t hdfc-playground ./playground
 
-      # Tag Docker image
+      # Tag Docker Image
       - name: Tag Docker Image
         run: |
           docker tag hdfc-playground:latest ${{ steps.login-ecr.outputs.registry }}/hdfc-playground:latest
 
-      # Push image to ECR
+      # Push Docker Image
       - name: Push Docker Image
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/hdfc-playground:latest

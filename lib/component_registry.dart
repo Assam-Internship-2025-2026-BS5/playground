@@ -1,6 +1,5 @@
 import 'component_metadata.dart';
 import 'package:flutter/material.dart' hide Text, TextField, Icon, Image, Checkbox, Button;
-import 'package:designkit/components/atoms/glass_card.dart';
 import 'package:designkit/components/atoms/text.dart' as atom;
 import 'package:designkit/components/atoms/checkbox.dart' as atom;
 import 'package:designkit/components/atoms/text_field.dart' as atom;
@@ -12,7 +11,6 @@ import 'package:designkit/components/molecules/primary_button.dart';
 import 'package:designkit/components/molecules/scan.dart';
 import 'package:designkit/components/molecules/action_items.dart';
 import 'package:designkit/components/molecules/inline_action_row.dart';
-import 'package:designkit/components/organisms/header.dart';
 import 'package:designkit/components/organisms/app_header.dart';
 import 'package:designkit/components/organisms/bottom_nav.dart';
 import 'package:designkit/components/organisms/auth_section.dart';

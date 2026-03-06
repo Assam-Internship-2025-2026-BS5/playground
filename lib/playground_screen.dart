@@ -341,7 +341,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                   const SizedBox(height: 8),
                   Text(
                     selectedComponent?.category ?? "",
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Color(0xFF64748B),
                       fontSize: 13,
                     ),
@@ -531,9 +531,9 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: code));
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Code copied to clipboard!'),
-                    backgroundColor: const Color(0xFF1E3A8A),
+                  const SnackBar(
+                    content: Text('Code copied to clipboard!'),
+                    backgroundColor: Color(0xFF1E3A8A),
                     behavior: SnackBarBehavior.floating,
                     width: 250,
                   ),
@@ -642,7 +642,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
       title: Text(label, style: const TextStyle(color: Color(0xFF334155), fontSize: 14)),
       value: currentProps[key] ?? false,
       onChanged: (val) => setState(() => currentProps[key] = val),
-      activeColor: const Color(0xFFFF40B4),
+      activeThumbColor: const Color(0xFFFF40B4),
     );
   }
 
@@ -1099,7 +1099,7 @@ class _SVPainter extends CustomPainter {
     final Gradient hGradient = LinearGradient(
       colors: [Colors.white, HSVColor.fromAHSV(1.0, hue, 1.0, 1.0).toColor()],
     );
-    final Gradient vGradient = const LinearGradient(
+    const Gradient vGradient = LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       colors: [Colors.transparent, Colors.black],

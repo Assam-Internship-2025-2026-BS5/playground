@@ -1,79 +1,75 @@
-name: Flutter Web CI/CD to AWS
+name: CI/CD Deploy to AWS ECS
 
 on:
   push:
     branches:
       - main
 
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: hdfc-playground
+  ECS_SERVICE: hdfc-playground-service
+  ECS_CLUSTER: default
+  ECS_TASK_DEFINITION: ecs-task-definition.json
+  CONTAINER_NAME: hdfc-playground
+
 jobs:
-  build-and-deploy:
+  deploy:
+
     runs-on: ubuntu-latest
 
     steps:
 
-    # Checkout playground repo
-    - name: Checkout Playground
+    - name: Checkout repository
       uses: actions/checkout@v3
-      with:
-        path: playground
 
-    # Checkout public designkit repo
-    - name: Checkout DesignKit
-      uses: actions/checkout@v3
-      with:
-        repository: Assam-Internship-2025-2026-BS5/designkit
-        path: designkit
-
-    # Setup Flutter
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
         channel: stable
 
-    # Install dependencies
-    - name: Install Dependencies
-      run: |
-        cd playground
-        flutter pub get
+    - name: Install dependencies
+      run: flutter pub get
 
-    # Build Flutter Web
     - name: Build Flutter Web
-      run: |
-        cd playground
-        flutter build web
+      run: flutter build web
 
-    # Configure AWS credentials
-    - name: Configure AWS Credentials
+    - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-region: ${{ env.AWS_REGION }}
 
-    # Login to AWS ECR
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    # Prepare docker build context
-    - name: Prepare Docker Build Context
+    - name: Build Docker image
       run: |
-        mkdir build-context
-        cp -r playground build-context/
-        cp -r designkit build-context/
+        docker build -t $ECR_REPOSITORY .
 
-    # Build docker image
-    - name: Build Docker Image
+    - name: Tag Docker image
       run: |
-        docker build -f build-context/playground/Dockerfile -t hdfc-playground ./build-context
+        docker tag $ECR_REPOSITORY:latest ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
 
-    # Tag docker image
-    - name: Tag Docker Image
+    - name: Push Docker image
       run: |
-        docker tag hdfc-playground:latest ${{ steps.login-ecr.outputs.registry }}/hdfc-playground:latest
+        docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:latest
 
-    # Push docker image
-    - name: Push Docker Image
-      run: |
-        docker push ${{ steps.login-ecr.outputs.registry }}/hdfc-playground:latest
+    - name: Fill ECS task definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ env.ECS_TASK_DEFINITION }}
+        container-name: ${{ env.CONTAINER_NAME }}
+        image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+
+    - name: Deploy to ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true

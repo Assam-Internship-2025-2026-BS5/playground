@@ -3,14 +3,8 @@ FROM ghcr.io/cirruslabs/flutter:stable AS build
 
 WORKDIR /app
 
-# Copy playground code
-COPY playground/ /app/
-
-# Copy designkit dependency
-COPY designkit/ /designkit/
-
-# Update dependency path
-RUN sed -i 's|../designkit|/designkit|g' pubspec.yaml
+# Copy project files
+COPY . /app
 
 # Install dependencies
 RUN flutter pub get

@@ -1,13 +1,10 @@
 {
-  "family": "hdfc-playground-task",
+  "family": "hdfc-playground",
   "networkMode": "awsvpc",
-  "requiresCompatibilities": ["FARGATE"],
-  "cpu": "512",
-  "memory": "1024",
   "containerDefinitions": [
     {
       "name": "hdfc-playground",
-      "image": "885599572607.dkr.ecr.us-east-1.amazonaws.com/hdfc-playground",
+      "image": "885599572607.dkr.ecr.us-east-1.amazonaws.com/hdfc-playground:latest",
       "essential": true,
       "portMappings": [
         {
@@ -17,5 +14,8 @@
         }
       ]
     }
-  ]
+  ],
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512"
 }

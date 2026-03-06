@@ -17,13 +17,25 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
 
-      - name: Install dependencies
-        run: flutter pub get
+      # Install dependencies for designkit
+      - name: Install dependencies (designkit)
+        run: |
+          cd designkit
+          flutter pub get
 
+      # Install dependencies for playground
+      - name: Install dependencies (playground)
+        run: |
+          cd playground
+          flutter pub get
+
+      # Build Flutter Web
       - name: Build Flutter Web
-        run: flutter build web
+        run: |
+          cd playground
+          flutter build web
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -39,7 +51,7 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t hdfc-playground .
+          docker build -t hdfc-playground ./playground
 
       - name: Tag Docker Image
         run: |

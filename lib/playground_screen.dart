@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'component_registry.dart';
 import 'component_metadata.dart';
 import 'package:designkit/components/atoms/glass_container.dart';
-import 'package:designkit/components/atoms/image.dart' as atom;
 
 class PlaygroundScreen extends StatefulWidget {
   const PlaygroundScreen({super.key});

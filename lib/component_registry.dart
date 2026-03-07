@@ -436,24 +436,20 @@ final List<ComponentMetadata> componentRegistry = [
     category: 'Atoms',
     defaultProps: {
       'icon': null,
-      'imagePath': 'assets/Icon.png',
       'size': 60.0,
-      'color': const Color(0xFF2938AD),
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.Icon(
         props['icon'],
-        imagePath: props['imagePath'] ?? 'assets/Icon.png',
+        imagePath: 'assets/Icon.png',
         size: (props['size'] as num?)?.toDouble() ?? 24.0,
-        color: props['color'] ?? const Color(0xFF2938AD),
+        color: const Color(0xFF2938AD),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
       return "Icon(\n"
           "  ${props['icon'] != null ? 'Icons.${props['icon'].toString().split('.').last}' : 'null'},\n"
-          "  imagePath: '${props['imagePath']}',\n"
           "  size: ${props['size']},\n"
-          "  color: ${_formatColor(props['color'])},\n"
           ")";
     },
   ),

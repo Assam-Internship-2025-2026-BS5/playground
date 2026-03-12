@@ -18,6 +18,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # SECURITY STEP 1 - Scan project dependencies and files
+      - name: Run Trivy Filesystem Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'table'
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -43,6 +50,13 @@ jobs:
 
       - name: Build Docker Image
         run: docker build -t hdfc-playground .
+
+      # SECURITY STEP 2 - Scan Docker image for vulnerabilities
+      - name: Run Trivy Image Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: hdfc-playground:latest
+          format: 'table'
 
       - name: Tag Docker Image
         run: |

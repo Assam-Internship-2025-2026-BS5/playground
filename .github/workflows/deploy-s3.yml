@@ -13,6 +13,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      # SECURITY STEP - Scan project files and dependencies
+      - name: Run Trivy Filesystem Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'table'
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:

@@ -18,12 +18,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # SECURITY STEP 1 - Scan project dependencies and files
+      # SONARQUBE SCAN
+      - name: Install SonarScanner
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+          sudo mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
+          sudo ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/local/bin/sonar-scanner
+
+      - name: Run SonarQube Scan
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=hdfc-playground \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+      # TRIVY FILESYSTEM SCAN
       - name: Run Trivy Filesystem Scan
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          format: 'table'
+          scan-type: fs
+          format: table
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -51,12 +69,12 @@ jobs:
       - name: Build Docker Image
         run: docker build -t hdfc-playground .
 
-      # SECURITY STEP 2 - Scan Docker image for vulnerabilities
+      # TRIVY IMAGE SCAN
       - name: Run Trivy Image Scan
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: hdfc-playground:latest
-          format: 'table'
+          format: table
 
       - name: Tag Docker Image
         run: |

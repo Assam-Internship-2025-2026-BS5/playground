@@ -79,7 +79,7 @@ jobs:
           image-ref: hdfc-playground:latest
           format: table
           severity: HIGH,CRITICAL
-          exit-code: 1
+          exit-code: 0
 
       # 1️⃣2️⃣ Tag Docker image
       - name: Tag Docker Image

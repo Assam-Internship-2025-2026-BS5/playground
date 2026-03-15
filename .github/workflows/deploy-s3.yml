@@ -11,21 +11,22 @@ jobs:
 
     steps:
 
-      # Checkout repo
+      # 1️⃣ Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Install Gitleaks
+      # 2️⃣ Install Gitleaks (stable method)
       - name: Install Gitleaks
         run: |
-          curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/scripts/install.sh | bash
+          go install github.com/gitleaks/gitleaks/v8@latest
+          echo "$HOME/go/bin" >> $GITHUB_PATH
 
-      # Run secret scan
+      # 3️⃣ Run Gitleaks secret scan
       - name: Run Gitleaks Scan
         run: |
           gitleaks detect --source . --verbose
 
-      # Vulnerability scan
+      # 4️⃣ Filesystem vulnerability scan
       - name: Run Trivy Filesystem Scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -34,21 +35,21 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 1
 
-      # Setup Flutter
+      # 5️⃣ Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      # Install dependencies
+      # 6️⃣ Install Flutter dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # Build Flutter web
+      # 7️⃣ Build Flutter Web
       - name: Build Flutter Web
         run: flutter build web
 
-      # Configure AWS credentials
+      # 8️⃣ Configure AWS credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -57,7 +58,7 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Deploy to S3
+      # 9️⃣ Deploy website to S3
       - name: Deploy to S3
         run: |
           aws s3 sync build/web s3://${{ secrets.S3_BUCKET }} --delete

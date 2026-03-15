@@ -15,22 +15,22 @@ jobs:
 
     steps:
 
-      # 1️⃣ Checkout repository
+      # Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2️⃣ Install Gitleaks (correct module path)
+      # Install Gitleaks (correct module path)
       - name: Install Gitleaks
         run: |
           go install github.com/zricethezav/gitleaks/v8@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
-      # 3️⃣ Run secret scan
+      # Run secret scan
       - name: Run Gitleaks Scan
         run: |
           gitleaks detect --source . --verbose
 
-      # 4️⃣ Filesystem vulnerability scan
+      # Filesystem vulnerability scan
       - name: Run Trivy Filesystem Scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -39,21 +39,21 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
-      # 5️⃣ Setup Flutter
+      # Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      # 6️⃣ Install dependencies
+      # Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # 7️⃣ Build Flutter Web
+      # Build Flutter Web
       - name: Build Flutter Web
         run: flutter build web
 
-      # 8️⃣ Configure AWS credentials
+      # Configure AWS credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -62,26 +62,28 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # 9️⃣ Login to ECR
+      # Login to ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 🔟 Build Docker image
+      # Build Docker image
       - name: Build Docker Image
         run: |
           docker build -t hdfc-playground .
 
-      # 1️⃣1️⃣ Scan Docker image
+      # Scan Docker image
       - name: Run Trivy Image Scan
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: hdfc-playground:latest
-          format: table
+          format: json
+          output: trivy-report.json
           severity: HIGH,CRITICAL
           exit-code: 0
+          
 
-      # 1️⃣2️⃣ Tag Docker image
+      # Tag Docker image
       - name: Tag Docker Image
         run: |
           docker tag hdfc-playground:latest \

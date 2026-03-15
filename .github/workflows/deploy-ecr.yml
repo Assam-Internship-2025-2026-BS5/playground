@@ -15,27 +15,38 @@ jobs:
 
     steps:
 
+      # Checkout Repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # SECURITY STEP 1 - Scan project dependencies and files
+      # Secret Scanning using GitLeaks
+      - name: Run GitLeaks Secret Scan
+        uses: gitleaks/gitleaks-action@v2
+
+      # Filesystem Vulnerability Scan using Trivy
       - name: Run Trivy Filesystem Scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
           format: table
+          severity: HIGH,CRITICAL
+          exit-code: 1
 
+      # Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
+      # Install Flutter Dependencies
       - name: Install dependencies
         run: flutter pub get
 
+      # Build Flutter Web
       - name: Build Flutter Web
         run: flutter build web
 
+      # Configure AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -44,24 +55,30 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # Login to Amazon ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      # Build Docker Image
       - name: Build Docker Image
         run: docker build -t hdfc-playground .
 
-      # SECURITY STEP 2 - Scan Docker image for vulnerabilities
+      # Scan Docker Image using Trivy
       - name: Run Trivy Image Scan
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: hdfc-playground:latest
           format: table
+          severity: HIGH,CRITICAL
+          exit-code: 1
 
+      # Tag Docker Image
       - name: Tag Docker Image
         run: |
           docker tag hdfc-playground:latest ${{ steps.login-ecr.outputs.registry }}/hdfc-playground:latest
 
+      # Push Docker Image to ECR
       - name: Push Docker Image to ECR
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/hdfc-playground:latest

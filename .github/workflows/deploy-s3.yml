@@ -10,27 +10,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      # Checkout repository
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # SECURITY STEP - Scan project files and dependencies
+      # Secret scanning using GitLeaks
+      - name: Run GitLeaks Secret Scan
+        uses: gitleaks/gitleaks-action@v2
+
+      # Filesystem vulnerability scan using Trivy (CVSS filtering)
       - name: Run Trivy Filesystem Scan
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          format: 'table'
+          scan-type: fs
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: 1
 
+      # Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
+      # Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
+      # Build Flutter Web
       - name: Build Flutter Web
         run: flutter build web
 
+      # Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -39,6 +51,7 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # Deploy to S3
       - name: Deploy to S3
         run: |
           aws s3 sync build/web s3://${{ secrets.S3_BUCKET }} --delete

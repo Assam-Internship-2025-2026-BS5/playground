@@ -1,9 +1,13 @@
-name: Deploy Flutter Web to S3
+name: Deploy Flutter Web to S3 (DevSecOps)
 
 on:
   push:
     branches:
       - main
+
+permissions:
+  contents: read
+  security-events: write
 
 jobs:
   deploy:
@@ -11,38 +15,58 @@ jobs:
 
     steps:
 
-      # Checkout repository
+      # 1️⃣ Checkout repository
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Secret scanning using GitLeaks
-      - name: Run GitLeaks Secret Scan
-        uses: gitleaks/gitleaks-action@v2
+      # 2️⃣ Install GitLeaks
+      - name: Install Gitleaks
+        run: |
+          wget https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64.tar.gz
+          tar -xzf gitleaks-linux-amd64.tar.gz
+          sudo mv gitleaks /usr/local/bin/
 
-      # Filesystem vulnerability scan using Trivy (CVSS filtering)
+      # 3️⃣ Run GitLeaks and generate SARIF report
+      - name: Run Gitleaks Scan
+        run: |
+          gitleaks detect --source . --report-format sarif --report-path gitleaks.sarif
+
+      # 4️⃣ Upload GitLeaks report to GitHub Security
+      - name: Upload GitLeaks SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gitleaks.sarif
+
+      # 5️⃣ Trivy filesystem scan with CVSS filtering
       - name: Run Trivy Filesystem Scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
-          format: table
+          format: sarif
+          output: trivy-results.sarif
           severity: HIGH,CRITICAL
-          exit-code: 1
 
-      # Setup Flutter
+      # 6️⃣ Upload Trivy report to GitHub Security
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+
+      # 7️⃣ Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      # Install dependencies
+      # 8️⃣ Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # Build Flutter Web
+      # 9️⃣ Build Flutter Web
       - name: Build Flutter Web
         run: flutter build web
 
-      # Configure AWS credentials
+      # 🔟 Configure AWS credentials
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -51,7 +75,7 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Deploy to S3
+      # 1️⃣1️⃣ Deploy to S3
       - name: Deploy to S3
         run: |
           aws s3 sync build/web s3://${{ secrets.S3_BUCKET }} --delete

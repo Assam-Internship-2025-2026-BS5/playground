@@ -15,15 +15,23 @@ jobs:
 
     steps:
 
-      # Checkout Repository
+      # 1️⃣ Checkout repository
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Secret Scanning using GitLeaks
-      - name: Run GitLeaks Secret Scan
-        uses: gitleaks/gitleaks-action@v2
+      # 2️⃣ Install GitLeaks (CLI version - no license needed)
+      - name: Install Gitleaks
+        run: |
+          wget https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64.tar.gz
+          tar -xzf gitleaks-linux-amd64.tar.gz
+          sudo mv gitleaks /usr/local/bin/
 
-      # Filesystem Vulnerability Scan using Trivy
+      # 3️⃣ Run GitLeaks secret scan
+      - name: Run Gitleaks Scan
+        run: |
+          gitleaks detect --source . --verbose
+
+      # 4️⃣ Filesystem vulnerability scan using Trivy
       - name: Run Trivy Filesystem Scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -32,21 +40,21 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 1
 
-      # Setup Flutter
+      # 5️⃣ Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      # Install Flutter Dependencies
+      # 6️⃣ Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # Build Flutter Web
+      # 7️⃣ Build Flutter Web
       - name: Build Flutter Web
         run: flutter build web
 
-      # Configure AWS Credentials
+      # 8️⃣ Configure AWS credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -55,16 +63,16 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Login to Amazon ECR
+      # 9️⃣ Login to ECR
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
 
-      # Build Docker Image
+      # 🔟 Build Docker image
       - name: Build Docker Image
         run: docker build -t hdfc-playground .
 
-      # Scan Docker Image using Trivy
+      # 1️⃣1️⃣ Scan Docker image using Trivy
       - name: Run Trivy Image Scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -73,12 +81,12 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 1
 
-      # Tag Docker Image
+      # 1️⃣2️⃣ Tag Docker image
       - name: Tag Docker Image
         run: |
           docker tag hdfc-playground:latest ${{ steps.login-ecr.outputs.registry }}/hdfc-playground:latest
 
-      # Push Docker Image to ECR
+      # 1️⃣3️⃣ Push Docker image to ECR
       - name: Push Docker Image to ECR
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/hdfc-playground:latest

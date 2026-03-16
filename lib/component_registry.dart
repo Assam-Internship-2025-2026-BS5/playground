@@ -98,36 +98,6 @@ final List<ComponentMetadata> componentRegistry = [
     },
   ),
   ComponentMetadata(
-    name: 'InlineActionRow',
-    category: 'Molecules',
-    defaultProps: {
-      'leftLabel': 'Or, login with mPIN',
-      'rightLabel': 'Forgot mPIN?',
-      'textColor': const Color(0xFF1565C0),
-      'spacing': 80.0,
-    },
-    builder: (Map<String, dynamic> props, {onPropChanged}) {
-      return InlineActionRow(
-        leftLabel: props['leftLabel'] ?? 'Or, login with mPIN',
-        rightLabel: props['rightLabel'] ?? 'Forgot mPIN?',
-        textColor: props['textColor'] ?? const Color(0xFF1565C0),
-        spacing: (props['spacing'] as num?)?.toDouble() ?? 80.0,
-        onLeftTap: () => debugPrint('Left Label Tapped'),
-        onRightTap: () => debugPrint('Right Label Tapped'),
-      );
-    },
-    codeBuilder: (Map<String, dynamic> props) {
-      return "InlineActionRow(\n"
-          "  leftLabel: '${props['leftLabel']}',\n"
-          "  rightLabel: '${props['rightLabel']}',\n"
-          "  textColor: ${_formatColor(props['textColor'])},\n"
-          "  spacing: ${props['spacing']},\n"
-          "  onLeftTap: () => print('Left Tapped'),\n"
-          "  onRightTap: () => print('Right Tapped'),\n"
-          ")";
-    },
-  ),
-  ComponentMetadata(
     name: 'ActionItems',
     category: 'Molecules',
     defaultProps: {
@@ -228,7 +198,6 @@ final List<ComponentMetadata> componentRegistry = [
       'leftActionLabel': 'Or, login with mPIN',
       'rightActionLabel': 'Forgot mPIN?',
       'width': 450.0,
-      'opacity': 0.1,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return AuthSection(
@@ -236,7 +205,6 @@ final List<ComponentMetadata> componentRegistry = [
         leftActionLabel: props['leftActionLabel'] ?? 'Or, login with mPIN',
         rightActionLabel: props['rightActionLabel'] ?? 'Forgot mPIN?',
         width: (props['width'] as num?)?.toDouble() ?? 450.0,
-        opacity: (props['opacity'] as num?)?.toDouble() ?? 0.1,
         onPrimaryActionTap: () => debugPrint('Primary Tapped'),
         onLeftActionTap: () => debugPrint('Left Tapped'),
         onRightActionTap: () => debugPrint('Right Tapped'),
@@ -248,7 +216,6 @@ final List<ComponentMetadata> componentRegistry = [
           "  leftActionLabel: '${props['leftActionLabel']}',\n"
           "  rightActionLabel: '${props['rightActionLabel']}',\n"
           "  width: ${props['width']},\n"
-          "  opacity: ${props['opacity']},\n"
           "  onPrimaryActionTap: () => print('Primary'),\n"
           "  onLeftActionTap: () => print('Left'),\n"
           "  onRightActionTap: () => print('Right'),\n"
@@ -430,21 +397,18 @@ final List<ComponentMetadata> componentRegistry = [
     defaultProps: {
       'icon': null,
       'size': 60.0,
-      'color': const Color(0xFF2938AD),
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.Icon(
         props['icon'],
         imagePath: 'assets/Icon.png',
         size: (props['size'] as num?)?.toDouble() ?? 24.0,
-        color: props['color'] ?? const Color(0xFF2938AD),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
       return "Icon(\n"
           "  ${props['icon'] != null ? 'Icons.${props['icon'].toString().split('.').last}' : 'null'},\n"
           "  size: ${props['size']},\n"
-          "  color: ${_formatColor(props['color'])},\n"
           ")";
     },
   ),
@@ -455,7 +419,7 @@ final List<ComponentMetadata> componentRegistry = [
       'text': 'Click Me',
       'fontSize': 18.0,
       'color': const Color(0xFF2938AD),
-      'underline': true,
+      'showUnderline': true,
       'fontWeight': FontWeight.bold,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
@@ -464,7 +428,7 @@ final List<ComponentMetadata> componentRegistry = [
         fontSize: (props['fontSize'] as num?)?.toDouble() ?? 18.0,
         color: props['color'] ?? const Color(0xFF2938AD),
         fontWeight: props['fontWeight'] ?? FontWeight.bold,
-        underline: props['underline'] ?? true,
+        underline: props['showUnderline'] ?? true,
         onPressed: () => debugPrint('TextButton Pressed'),
       );
     },
@@ -474,7 +438,7 @@ final List<ComponentMetadata> componentRegistry = [
           "  fontSize: ${props['fontSize']},\n"
           "  color: ${_formatColor(props['color'])},\n"
           "  fontWeight: ${_formatFontWeight(props['fontWeight'])},\n"
-          "  underline: ${props['underline']},\n"
+          "  underline: ${props['showUnderline']},\n"
           "  onPressed: () => print('Pressed'),\n"
           ")";
     },

@@ -14,39 +14,37 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Start SonarQube container
-      - name: Start SonarQube Server
+
+      # Install jq (used to format tables)
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+
+      # Start SonarQube server
+      - name: Start SonarQube
         run: |
           docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
-
-      # Wait for SonarQube to start
-      - name: Wait for SonarQube
-        run: |
-          echo "Waiting for SonarQube to start..."
           sleep 60
 
-      # Setup Java (required for sonar scanner)
+
+      # Setup Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
+
       # Install SonarScanner
       - name: Install SonarScanner
         run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip wget
-
           wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-
           unzip sonar-scanner-cli-5.0.1.3006-linux.zip
-
           sudo mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
-
           echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
 
-      # Run SonarQube Scan
+
+      # Run Sonar Scan
       - name: Run SonarQube Scan
         run: |
           sonar-scanner \
@@ -56,43 +54,76 @@ jobs:
           -Dsonar.login=admin \
           -Dsonar.password=admin
 
+
+      # Print Sonar Results
+      - name: Print SonarQube Results
+        run: |
+          echo "==============================="
+          echo " SONARQUBE SECURITY REPORT "
+          echo "==============================="
+
+          curl -s "http://localhost:9000/api/measures/component?component=flutter-security&metricKeys=bugs,vulnerabilities,code_smells,coverage" \
+          -u admin:admin | jq -r '
+          .component.measures[] |
+          "| " + .metric + " | " + .value + " |"'
+
+
       # Install Gitleaks
       - name: Install Gitleaks
         run: |
           go install github.com/zricethezav/gitleaks/v8@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
-      # Run Gitleaks Scan (logs)
-      - name: Run Gitleaks Scan
-        run: |
-          gitleaks detect --source . --verbose || true
 
-      # Generate Gitleaks JSON report
-      - name: Generate Gitleaks Report
+      # Run Gitleaks JSON Scan
+      - name: Run Gitleaks Scan
         run: |
           gitleaks detect \
           --source . \
           --report-format json \
           --report-path gitleaks-report.json || true
 
-      # Trivy filesystem scan (logs)
-      - name: Trivy Filesystem Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: fs
-          format: table
-          severity: HIGH,CRITICAL
-          exit-code: 0
 
-      # Trivy JSON report
-      - name: Trivy Filesystem Report
+      # Print Gitleaks Results
+      - name: Print Gitleaks Table
+        run: |
+          echo "==============================="
+          echo " GITLEAKS SECRET REPORT "
+          echo "==============================="
+
+          if [ -s gitleaks-report.json ]; then
+            jq -r '.[] | "| " + .RuleID + " | " + .File + " | line " + (.StartLine|tostring) + " |"' gitleaks-report.json
+          else
+            echo "| No secrets detected |"
+          fi
+
+
+      # Trivy filesystem scan JSON
+      - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
           format: json
-          output: trivy-fs-report.json
+          output: trivy-report.json
           severity: HIGH,CRITICAL
           exit-code: 0
+
+
+      # Print Trivy Results with CVSS
+      - name: Print Trivy Vulnerability Table
+        run: |
+          echo "==============================="
+          echo " TRIVY VULNERABILITY REPORT "
+          echo "==============================="
+
+          jq -r '
+          .Results[].Vulnerabilities[]? |
+          "| " + .PkgName +
+          " | " + .VulnerabilityID +
+          " | " + .Severity +
+          " | CVSS: " + (.CVSS.nvd.V3Score|tostring) +
+          " |"' trivy-report.json
+
 
       # Upload reports
       - name: Upload Security Reports
@@ -101,4 +132,4 @@ jobs:
           name: security-reports
           path: |
             gitleaks-report.json
-            trivy-fs-report.json
+            trivy-report.json

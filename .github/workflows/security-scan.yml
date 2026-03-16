@@ -13,15 +13,45 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+
+      # Install Java (required for SonarScanner)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+
+      # Install SonarScanner
+      - name: Install SonarScanner
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip wget
+          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner-cli-*.zip
+          echo "$PWD/sonar-scanner-*/bin" >> $GITHUB_PATH
+
+
+      # Run SonarScanner (results printed in logs)
+      - name: Run SonarQube Scan
+        run: |
+          sonar-scanner -Dsonar.projectBaseDir=.
+
+
+      # Install Gitleaks
       - name: Install Gitleaks
         run: |
           go install github.com/zricethezav/gitleaks/v8@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
+
+      # Run Gitleaks Scan
       - name: Run Gitleaks Scan (Logs)
         run: |
           gitleaks detect --source . --verbose || true
 
+
+      # Generate Gitleaks JSON report
       - name: Generate Gitleaks Report
         run: |
           gitleaks detect \
@@ -29,6 +59,8 @@ jobs:
           --report-format json \
           --report-path gitleaks-report.json || true
 
+
+      # Trivy filesystem scan (logs)
       - name: Trivy Filesystem Scan (Logs)
         uses: aquasecurity/trivy-action@master
         with:
@@ -37,6 +69,8 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
+
+      # Trivy JSON report
       - name: Trivy Filesystem Report
         uses: aquasecurity/trivy-action@master
         with:
@@ -46,6 +80,8 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
+
+      # Upload reports
       - name: Upload Security Reports
         uses: actions/upload-artifact@v4
         with:

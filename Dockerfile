@@ -13,7 +13,7 @@ RUN flutter pub get
 RUN flutter build web
 
 # Stage 2: Serve with nginx
-FROM nginx:alpine
+FROM nginx:stable-alpine
 
 COPY --from=build /app/build/web /usr/share/nginx/html
 

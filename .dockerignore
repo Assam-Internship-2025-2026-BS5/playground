@@ -6,3 +6,7 @@ build/
 *.iml
 *.log
 .DS_Store
+.github
+build
+node_modules
+.cache

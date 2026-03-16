@@ -41,7 +41,36 @@ String _formatFontWeight(dynamic weight) {
   return "FontWeight.normal";
 }
 
+final List<BottomNavItemData> _defaultNavItems = [
+  BottomNavItemData(icon: Icons.settings, label: "Maintenance"),
+  BottomNavItemData(icon: Icons.help, label: "Reach Us"),
+  BottomNavItemData(icon: Icons.more_horiz, label: "More"),
+];
+
 final List<ComponentMetadata> componentRegistry = [
+  ComponentMetadata(
+    name: 'BottomNav',
+    category: 'Organisms',
+    defaultProps: {},
+    builder: (Map<String, dynamic> props, {void Function(String, dynamic)? onPropChanged}) {
+      return BottomNav(
+        items: _defaultNavItems,
+        onNavTap: (label) {
+          debugPrint('Nav Tapped: $label');
+        },
+      );
+    },
+    codeBuilder: (Map<String, dynamic> props) {
+      return "BottomNav(\n"
+          "  items: [\n"
+          "    BottomNavItemData(icon: Icons.settings, label: 'Maintenance'),\n"
+          "    BottomNavItemData(icon: Icons.help, label: 'Reach Us'),\n"
+          "    BottomNavItemData(icon: Icons.more_horiz, label: 'More'),\n"
+          "  ],\n"
+          "  onNavTap: (label) => print(label),\n"
+          ")";
+    },
+  ),
   ComponentMetadata(
     name: 'QR Scan',
     category: 'Molecules',
@@ -176,31 +205,7 @@ final List<ComponentMetadata> componentRegistry = [
           ")";
     },
   ),
-  ComponentMetadata(
-    name: 'BottomNav',
-    category: 'Organisms',
-    defaultProps: {
-      'backgroundColor': Colors.white,
-      'activeColor': const Color(0xFF004C8F),
-      'inactiveColor': const Color(0xFF4B5563),
-    },
-    builder: (Map<String, dynamic> props, {onPropChanged}) {
-      return BottomNav(
-        backgroundColor: props['backgroundColor'] ?? Colors.white,
-        activeColor: props['activeColor'] ?? const Color(0xFF004C8F),
-        inactiveColor: props['inactiveColor'] ?? const Color(0xFF4B5563),
-        onNavTap: (label) => debugPrint('Nav Tapped: $label'),
-      );
-    },
-    codeBuilder: (Map<String, dynamic> props) {
-      return "BottomNav(\n"
-          "  backgroundColor: ${_formatColor(props['backgroundColor'])},\n"
-          "  activeColor: ${_formatColor(props['activeColor'])},\n"
-          "  inactiveColor: ${_formatColor(props['inactiveColor'])},\n"
-          "  onNavTap: (label) => print(label),\n"
-          ")";
-    },
-  ),
+
   ComponentMetadata(
     name: 'AppHeader',
     category: 'Organisms',
@@ -508,7 +513,13 @@ final List<ComponentMetadata> componentRegistry = [
           "          ),\n"
           "        ),\n"
           "      ),\n"
-          "      BottomNav(),\n"
+          "      BottomNav(\n"
+          "        items: [\n"
+          "          BottomNavItemData(icon: Icons.build_circle_outlined, label: 'Maintenance'),\n"
+          "          BottomNavItemData(icon: Icons.chat_bubble_outline, label: 'Reach Us'),\n"
+          "          BottomNavItemData(icon: Icons.more_horiz_rounded, label: 'More'),\n"
+          "        ],\n"
+          "      ),\n"
           "    ],\n"
           "  ),\n"
           ")";

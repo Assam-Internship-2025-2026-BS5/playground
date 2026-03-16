@@ -15,23 +15,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Install Gitleaks (correct module)
+      # Install Gitleaks
       - name: Install Gitleaks
         run: |
           go install github.com/zricethezav/gitleaks/v8@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
-      # Run secret scan
+      # Run secret scan and generate report
       - name: Run Gitleaks Scan
         run: |
-          gitleaks detect --source . --verbose
+          gitleaks detect --source . --report-format json --report-path gitleaks-report.json
 
-      # Filesystem vulnerability scan
+      # Filesystem vulnerability scan with report
       - name: Run Trivy Filesystem Scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
-          format: table
+          format: json
+          output: trivy-fs-report.json
           severity: HIGH,CRITICAL
           exit-code: 0
 
@@ -62,3 +63,12 @@ jobs:
       - name: Deploy to S3
         run: |
           aws s3 sync build/web s3://${{ secrets.S3_BUCKET }} --delete
+
+      # Upload security reports
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports-s3
+          path: |
+            gitleaks-report.json
+            trivy-fs-report.json

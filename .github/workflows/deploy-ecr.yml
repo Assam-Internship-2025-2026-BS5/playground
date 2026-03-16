@@ -5,10 +5,6 @@ on:
     branches:
       - main
 
-env:
-  AWS_REGION: us-east-1
-  ECR_REPOSITORY: hdfc-playground
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,23 +15,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Install Gitleaks (correct module path)
+      # Install Gitleaks
       - name: Install Gitleaks
         run: |
           go install github.com/zricethezav/gitleaks/v8@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
-      # Run secret scan
+      # Run secret scan and generate report
       - name: Run Gitleaks Scan
         run: |
-          gitleaks detect --source . --verbose
+          gitleaks detect --source . --report-format json --report-path gitleaks-report.json
 
       # Filesystem vulnerability scan
       - name: Run Trivy Filesystem Scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
-          format: table
+          format: json
+          output: trivy-fs-report.json
           severity: HIGH,CRITICAL
           exit-code: 0
 
@@ -70,27 +67,36 @@ jobs:
       # Build Docker image
       - name: Build Docker Image
         run: |
-          docker build -t hdfc-playground .
+          docker build -t ${{ secrets.ECR_REPOSITORY }} .
 
       # Scan Docker image
       - name: Run Trivy Image Scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: hdfc-playground:latest
+          image-ref: ${{ secrets.ECR_REPOSITORY }}:latest
           format: json
-          output: trivy-report.json
+          output: trivy-image-report.json
           severity: HIGH,CRITICAL
           exit-code: 0
-          
 
       # Tag Docker image
       - name: Tag Docker Image
         run: |
-          docker tag hdfc-playground:latest \
-          ${{ steps.login-ecr.outputs.registry }}/hdfc-playground:latest
+          docker tag ${{ secrets.ECR_REPOSITORY }}:latest \
+          ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
 
       # Push Docker image
       - name: Push Docker Image
         run: |
           docker push \
-          ${{ steps.login-ecr.outputs.registry }}/hdfc-playground:latest
+          ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
+
+      # Upload security reports
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports-ecr
+          path: |
+            gitleaks-report.json
+            trivy-fs-report.json
+            trivy-image-report.json

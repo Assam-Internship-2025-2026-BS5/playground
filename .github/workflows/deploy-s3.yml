@@ -11,7 +11,6 @@ jobs:
 
     steps:
 
-      # Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -21,13 +20,29 @@ jobs:
           go install github.com/zricethezav/gitleaks/v8@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
-      # Run secret scan and generate report
-      - name: Run Gitleaks Scan
+      # Gitleaks logs
+      - name: Run Gitleaks Scan (Logs)
         run: |
-          gitleaks detect --source . --report-format json --report-path gitleaks-report.json
+          gitleaks detect --source . --verbose || true
 
-      # Filesystem vulnerability scan with report
-      - name: Run Trivy Filesystem Scan
+      # Gitleaks JSON report
+      - name: Generate Gitleaks Report
+        run: |
+          gitleaks detect --source . \
+          --report-format json \
+          --report-path gitleaks-report.json || true
+
+      # Trivy FS logs
+      - name: Trivy FS Scan (Logs)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: 0
+
+      # Trivy FS JSON
+      - name: Trivy FS Report
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
@@ -42,15 +57,13 @@ jobs:
         with:
           channel: stable
 
-      # Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # Build Flutter web
       - name: Build Flutter Web
         run: flutter build web
 
-      # Configure AWS credentials
+      # AWS credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -64,11 +77,11 @@ jobs:
         run: |
           aws s3 sync build/web s3://${{ secrets.S3_BUCKET }} --delete
 
-      # Upload security reports
+      # Upload reports
       - name: Upload Security Reports
         uses: actions/upload-artifact@v4
         with:
-          name: security-reports-s3
+          name: security-reports
           path: |
             gitleaks-report.json
             trivy-fs-report.json

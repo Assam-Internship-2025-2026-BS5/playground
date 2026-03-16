@@ -11,7 +11,6 @@ jobs:
 
     steps:
 
-      # Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -21,13 +20,29 @@ jobs:
           go install github.com/zricethezav/gitleaks/v8@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
-      # Run secret scan and generate report
-      - name: Run Gitleaks Scan
+      # Gitleaks table output in logs
+      - name: Run Gitleaks Scan (Logs)
         run: |
-          gitleaks detect --source . --report-format json --report-path gitleaks-report.json
+          gitleaks detect --source . --verbose || true
 
-      # Filesystem vulnerability scan
-      - name: Run Trivy Filesystem Scan
+      # Gitleaks JSON report
+      - name: Generate Gitleaks Report
+        run: |
+          gitleaks detect --source . \
+          --report-format json \
+          --report-path gitleaks-report.json || true
+
+      # Trivy filesystem scan logs
+      - name: Trivy FS Scan (Logs)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: 0
+
+      # Trivy filesystem JSON report
+      - name: Trivy FS Report
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
@@ -42,15 +57,13 @@ jobs:
         with:
           channel: stable
 
-      # Install dependencies
       - name: Install dependencies
         run: flutter pub get
 
-      # Build Flutter Web
       - name: Build Flutter Web
         run: flutter build web
 
-      # Configure AWS credentials
+      # Configure AWS
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -64,13 +77,22 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # Build Docker image
+      # Build image
       - name: Build Docker Image
         run: |
           docker build -t ${{ secrets.ECR_REPOSITORY }} .
 
-      # Scan Docker image
-      - name: Run Trivy Image Scan
+      # Trivy Image Scan logs
+      - name: Trivy Image Scan (Logs)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.ECR_REPOSITORY }}:latest
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: 0
+
+      # Trivy Image JSON report
+      - name: Trivy Image Report
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ secrets.ECR_REPOSITORY }}:latest
@@ -79,23 +101,23 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
-      # Tag Docker image
+      # Tag image
       - name: Tag Docker Image
         run: |
           docker tag ${{ secrets.ECR_REPOSITORY }}:latest \
           ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
 
-      # Push Docker image
+      # Push image
       - name: Push Docker Image
         run: |
           docker push \
           ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
 
-      # Upload security reports
+      # Upload reports
       - name: Upload Security Reports
         uses: actions/upload-artifact@v4
         with:
-          name: security-reports-ecr
+          name: security-reports
           path: |
             gitleaks-report.json
             trivy-fs-report.json

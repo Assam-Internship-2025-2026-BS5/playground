@@ -381,12 +381,13 @@ final List<ComponentMetadata> componentRegistry = [
       'height': 61.0,
       'disabled': false,
       'buttonColor': const Color(0xFF5371F9),
-      'showOutline': true,
-      'opacity': 0.3,
+      'isSingleColor': false,
+      'opacity': 0.8,
       'textColor': Colors.white,
       'fontSize': 22.0,
       'fontWeight': FontWeight.w600,
       'borderRadius': 20.0,
+      'showFingerprint': false,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.Button(
@@ -395,12 +396,13 @@ final List<ComponentMetadata> componentRegistry = [
         height: (props['height'] as num?)?.toDouble() ?? 61.0,
         disabled: props['disabled'] ?? false,
         buttonColor: props['buttonColor'] ?? const Color(0xFF5371F9),
-        showOutline: props['showOutline'] ?? true,
-        opacity: (props['opacity'] as num?)?.toDouble() ?? 0.3,
+        isSingleColor: props['isSingleColor'] ?? false,
+        opacity: (props['opacity'] as num?)?.toDouble() ?? 0.8,
         textColor: props['textColor'] ?? Colors.white,
         fontSize: (props['fontSize'] as num?)?.toDouble() ?? 22.0,
         fontWeight: props['fontWeight'] ?? FontWeight.w600,
         borderRadius: (props['borderRadius'] as num?)?.toDouble() ?? 20.0,
+        showFingerprint: props['showFingerprint'] ?? false,
         onTap: () => debugPrint('Button Pressed'),
       );
     },
@@ -411,12 +413,13 @@ final List<ComponentMetadata> componentRegistry = [
           "  height: ${props['height']},\n"
           "  disabled: ${props['disabled']},\n"
           "  buttonColor: ${_formatColor(props['buttonColor'])},\n"
-          "  showOutline: ${props['showOutline']},\n"
+          "  isSingleColor: ${props['isSingleColor'] ?? false},\n"
           "  opacity: ${props['opacity']},\n"
           "  textColor: ${_formatColor(props['textColor'])},\n"
           "  fontSize: ${props['fontSize']},\n"
           "  fontWeight: ${_formatFontWeight(props['fontWeight'])},\n"
           "  borderRadius: ${props['borderRadius']},\n"
+          "  showFingerprint: ${props['showFingerprint'] ?? false},\n"
           "  onTap: () => print('Pressed'),\n"
           ")";
     },

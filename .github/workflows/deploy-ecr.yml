@@ -6,31 +6,19 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Cache Flutter Dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-flutter-
+      - uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - name: Install Dependencies
-        run: flutter pub get
-
-      - name: Build Flutter Web
-        run: flutter build web
+      - run: flutter pub get
+      - run: flutter build web
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -40,23 +28,14 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Login to Amazon ECR
+      - name: Login to ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build Docker Image
-        run: |
-          docker build -t ${{ secrets.ECR_REPOSITORY }} .
+      - name: Build Image
+        run: docker build -t ${{ secrets.ECR_REPOSITORY }} .
 
-      - name: Trivy Image Scan (Logs)
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ secrets.ECR_REPOSITORY }}:latest
-          format: table
-          severity: HIGH,CRITICAL
-          exit-code: 0
-
-      - name: Trivy Image Report
+      - name: Scan Image
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ secrets.ECR_REPOSITORY }}:latest
@@ -65,17 +44,17 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
-      - name: Tag Docker Image
+      - name: Tag Image
         run: |
           docker tag ${{ secrets.ECR_REPOSITORY }}:latest \
           ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
 
-      - name: Push Docker Image
+      - name: Push Image
         run: |
           docker push \
           ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
 
-      - name: Upload Image Scan Report
+      - name: Upload Image Report
         uses: actions/upload-artifact@v4
         with:
           name: image-security-report

@@ -6,36 +6,28 @@ on:
       - main
 
 jobs:
+
   scan:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
 
-
-      # Install jq (used to format tables)
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-
-      # Start SonarQube server
       - name: Start SonarQube
         run: |
           docker run -d --name sonarqube -p 9000:9000 sonarqube:lts-community
           sleep 60
 
-
-      # Setup Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-
-      # Install SonarScanner
       - name: Install SonarScanner
         run: |
           wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
@@ -43,8 +35,6 @@ jobs:
           sudo mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
           echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
 
-
-      # Run Sonar Scan
       - name: Run SonarQube Scan
         run: |
           sonar-scanner \
@@ -54,28 +44,16 @@ jobs:
           -Dsonar.login=admin \
           -Dsonar.password=admin
 
-
-      # Print Sonar Results
-      - name: Print SonarQube Results
+      - name: Save SonarQube Report
         run: |
-          echo "==============================="
-          echo " SONARQUBE SECURITY REPORT "
-          echo "==============================="
-
           curl -s "http://localhost:9000/api/measures/component?component=flutter-security&metricKeys=bugs,vulnerabilities,code_smells,coverage" \
-          -u admin:admin | jq -r '
-          .component.measures[] |
-          "| " + .metric + " | " + .value + " |"'
+          -u admin:admin > sonar-report.json
 
-
-      # Install Gitleaks
       - name: Install Gitleaks
         run: |
           go install github.com/zricethezav/gitleaks/v8@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
-
-      # Run Gitleaks JSON Scan
       - name: Run Gitleaks Scan
         run: |
           gitleaks detect \
@@ -83,22 +61,6 @@ jobs:
           --report-format json \
           --report-path gitleaks-report.json || true
 
-
-      # Print Gitleaks Results
-      - name: Print Gitleaks Table
-        run: |
-          echo "==============================="
-          echo " GITLEAKS SECRET REPORT "
-          echo "==============================="
-
-          if [ -s gitleaks-report.json ]; then
-            jq -r '.[] | "| " + .RuleID + " | " + .File + " | line " + (.StartLine|tostring) + " |"' gitleaks-report.json
-          else
-            echo "| No secrets detected |"
-          fi
-
-
-      # Trivy filesystem scan JSON
       - name: Run Trivy Scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -108,28 +70,57 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
-
-      # Print Trivy Results with CVSS
-      - name: Print Trivy Vulnerability Table
-        run: |
-          echo "==============================="
-          echo " TRIVY VULNERABILITY REPORT "
-          echo "==============================="
-
-          jq -r '
-          .Results[].Vulnerabilities[]? |
-          "| " + .PkgName +
-          " | " + .VulnerabilityID +
-          " | " + .Severity +
-          " | CVSS: " + (.CVSS.nvd.V3Score|tostring) +
-          " |"' trivy-report.json
-
-
-      # Upload reports
       - name: Upload Security Reports
         uses: actions/upload-artifact@v4
         with:
           name: security-reports
           path: |
+            sonar-report.json
             gitleaks-report.json
             trivy-report.json
+
+
+  report:
+    runs-on: ubuntu-latest
+    needs: scan
+
+    steps:
+      - name: Download Security Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: security-reports
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Generate Human Readable Security Report
+        run: |
+
+          echo "======================================="
+          echo "        SECURITY SUMMARY REPORT"
+          echo "======================================="
+
+          echo ""
+          echo "SONARQUBE RESULTS"
+          jq -r '.component.measures[] |
+          "| " + .metric + " | " + .value + " |"' sonar-report.json
+
+          echo ""
+          echo "GITLEAKS RESULTS"
+
+          if [ -s gitleaks-report.json ]; then
+            jq -r '.[] |
+            "| " + .RuleID + " | " + .File + " | line " + (.StartLine|tostring) + " |"' gitleaks-report.json
+          else
+            echo "No secrets detected"
+          fi
+
+          echo ""
+          echo "TRIVY RESULTS"
+
+          jq -r '.Results[].Vulnerabilities[]? |
+          "| " + .PkgName +
+          " | " + .VulnerabilityID +
+          " | " + .Severity +
+          " | CVSS " + (.CVSS.nvd.V3Score|tostring) +
+          " |"' trivy-report.json

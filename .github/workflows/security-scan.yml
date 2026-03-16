@@ -1,0 +1,55 @@
+name: Security Scan
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Gitleaks
+        run: |
+          go install github.com/zricethezav/gitleaks/v8@latest
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+
+      - name: Run Gitleaks Scan (Logs)
+        run: |
+          gitleaks detect --source . --verbose || true
+
+      - name: Generate Gitleaks Report
+        run: |
+          gitleaks detect \
+          --source . \
+          --report-format json \
+          --report-path gitleaks-report.json || true
+
+      - name: Trivy Filesystem Scan (Logs)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: 0
+
+      - name: Trivy Filesystem Report
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          format: json
+          output: trivy-fs-report.json
+          severity: HIGH,CRITICAL
+          exit-code: 0
+
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            gitleaks-report.json
+            trivy-fs-report.json

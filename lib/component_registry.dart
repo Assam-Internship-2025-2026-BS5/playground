@@ -28,60 +28,25 @@ String _formatFontWeight(dynamic weight) {
   return "FontWeight.normal";
 }
 
-final List<BottomNavItemData> _defaultNavItems = [
-  BottomNavItemData(icon: Icons.settings, label: "Maintenance"),
-  BottomNavItemData(icon: Icons.help, label: "Reach Us"),
-  BottomNavItemData(icon: Icons.more_horiz, label: "More"),
-];
-
 final List<ComponentMetadata> componentRegistry = [
-  ComponentMetadata(
-    name: 'BottomNav',
-    category: 'Organisms',
-    defaultProps: {},
-    builder: (Map<String, dynamic> props, {void Function(String, dynamic)? onPropChanged}) {
-      return BottomNav(
-        items: _defaultNavItems,
-        onNavTap: (label) {
-          debugPrint('Nav Tapped: $label');
-        },
-      );
-    },
-    codeBuilder: (Map<String, dynamic> props) {
-      return "BottomNav(\n"
-          "  items: [\n"
-          "    BottomNavItemData(icon: Icons.settings, label: 'Maintenance'),\n"
-          "    BottomNavItemData(icon: Icons.help, label: 'Reach Us'),\n"
-          "    BottomNavItemData(icon: Icons.more_horiz, label: 'More'),\n"
-          "  ],\n"
-          "  onNavTap: (label) => print(label),\n"
-          ")";
-    },
-  ),
   ComponentMetadata(
     name: 'QR Scan',
     category: 'Molecules',
     defaultProps: {
       'title': 'QR Scan',
-      'subtitle': '',
-      'popupTitle': 'Scan Code',
-      'textColor': const Color(0xFF1E3A8A),
-      'circleColor': const Color(0xFFE8EEFF),
-      'width': 130.0,
-      'height': 130.0,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return Scan(
         title: props['title'] ?? 'QR Scan',
-        subtitle: props['subtitle'] ?? '',
-        popupTitle: props['popupTitle'] ?? 'Scan Code',
+        subtitle: '',
+        popupTitle: 'Scan Code',
         qrData: 'https://www.hdfcbank.com',
         imagePath: 'assets/Qr_scan.png',
-        textColor: props['textColor'] ?? const Color(0xFF1E3A8A),
-        circleColor: props['circleColor'] ?? const Color(0xFFE8EEFF),
+        textColor: const Color(0xFF1E3A8A),
+        circleColor: const Color(0xFFE8EEFF),
         accentColor: const Color(0xFF8B5CF6),
-        width: (props['width'] as num?)?.toDouble() ?? 130.0,
-        height: (props['height'] as num?)?.toDouble() ?? 130.0,
+        width: 130.0,
+        height: 130.0,
         blur: 15.0,
         opacity: 0.2,
       );
@@ -89,12 +54,7 @@ final List<ComponentMetadata> componentRegistry = [
     codeBuilder: (Map<String, dynamic> props) {
       return "Scan(\n"
           "  title: '${props['title']}',\n"
-          "  subtitle: '${props['subtitle']}',\n"
-          "  popupTitle: '${props['popupTitle']}',\n"
-          "  textColor: ${_formatColor(props['textColor'])},\n"
-          "  circleColor: ${_formatColor(props['circleColor'])},\n"
-          "  width: ${props['width']},\n"
-          "  height: ${props['height']},\n"
+          "  popupTitle: 'Scan Code',\n"
           "  onTap: () => print('Tapped'),\n"
           ")";
     },
@@ -190,20 +150,14 @@ final List<ComponentMetadata> componentRegistry = [
     },
     codeBuilder: (Map<String, dynamic> props) {
       return "ActionItems(\n"
-          "  items: [\n"
-          "    ActionItemData(title: 'Send Money', imagePath: 'assets/Send_money.png'),\n"
-          "    ActionItemData(title: 'Pay Bills', imagePath: 'assets/Pay_bills.png'),\n"
-          "    ActionItemData(title: 'Products', imagePath: 'assets/Product_services.png', showBadge: true),\n"
-          "  ],\n"
+          "  items: [...],\n"
           "  itemWidth: ${props['itemWidth']},\n"
           "  itemHeight: ${props['itemHeight']},\n"
+          "  opacity: ${props['opacity']},\n"
           "  onItemTap: (item) => print(item.title),\n"
           ")";
     },
   ),
-<<<<<<< Updated upstream
-
-=======
   ComponentMetadata(
     name: 'BottomNav',
     category: 'Organisms',
@@ -235,13 +189,13 @@ final List<ComponentMetadata> componentRegistry = [
           ")";
     },
   ),
->>>>>>> Stashed changes
   ComponentMetadata(
     name: 'AppHeader',
     category: 'Organisms',
     defaultProps: {
       'userName': 'MHONBENI NGULLIE',
       'customerId': '******1010',
+      'logoPath': 'assets/hdfc_logo.png',
       'width': 375.0,
       'backgroundColor': const Color(0xFFC7E2FE),
     },
@@ -249,7 +203,7 @@ final List<ComponentMetadata> componentRegistry = [
       return AppHeader(
         userName: props['userName'] ?? 'MHONBENI NGULLIE',
         customerId: props['customerId'] ?? '******1010',
-        logoPath: 'assets/hdfc_logo.png',
+        logoPath: props['logoPath'] ?? 'assets/hdfc_logo.png',
         backgroundColor: props['backgroundColor'] ?? const Color(0xFFC7E2FE),
         width: (props['width'] as num?)?.toDouble() ?? 375.0,
         onNotificationTap: () => debugPrint('Notification Tapped'),
@@ -259,7 +213,7 @@ final List<ComponentMetadata> componentRegistry = [
       return "AppHeader(\n"
           "  userName: '${props['userName']}',\n"
           "  customerId: '${props['customerId']}',\n"
-          "  logoPath: 'assets/hdfc_logo.png',\n"
+          "  logoPath: '${props['logoPath']}',\n"
           "  backgroundColor: ${_formatColor(props['backgroundColor'])},\n"
           "  width: ${props['width']},\n"
           "  onNotificationTap: () => print('Notification Tapped'),\n"
@@ -324,7 +278,6 @@ final List<ComponentMetadata> componentRegistry = [
           "  fontSize: ${props['fontSize']},\n"
           "  color: ${_formatColor(props['color'])},\n"
           "  fontWeight: ${_formatFontWeight(props['fontWeight'])},\n"
-          "  textAlign: TextAlign.left,\n"
           ")";
     },
   ),
@@ -393,8 +346,6 @@ final List<ComponentMetadata> componentRegistry = [
           "  fontWeight: ${_formatFontWeight(props['fontWeight'])},\n"
           "  borderRadius: ${props['borderRadius']},\n"
           "  fillColor: ${_formatColor(props['fillColor'])},\n"
-          "  validator: (value) => value.isEmpty ? 'Required' : null,\n"
-          "  inputFormatters: [],\n"
           ")";
     },
   ),
@@ -476,19 +427,21 @@ final List<ComponentMetadata> componentRegistry = [
     defaultProps: {
       'icon': null,
       'size': 60.0,
+      'color': const Color(0xFF2938AD),
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.Icon(
         props['icon'],
         imagePath: 'assets/Icon.png',
         size: (props['size'] as num?)?.toDouble() ?? 24.0,
-        color: const Color(0xFF2938AD),
+        color: props['color'] ?? const Color(0xFF2938AD),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
       return "Icon(\n"
           "  ${props['icon'] != null ? 'Icons.${props['icon'].toString().split('.').last}' : 'null'},\n"
           "  size: ${props['size']},\n"
+          "  color: ${_formatColor(props['color'])},\n"
           ")";
     },
   ),
@@ -529,6 +482,11 @@ final List<ComponentMetadata> componentRegistry = [
     defaultProps: {
       'userName': 'MHONBENI NGULLIE',
       'customerId': '******1010',
+      'primaryButtonTitle': 'Login with Fingerprint',
+      'leftActionLabel': 'Or, login with mPIN',
+      'rightActionLabel': 'Forgot mPIN?',
+      'scanTitle': 'QR Scan',
+      'scanPopupTitle': 'Scan Code',
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return HomePage(
@@ -545,49 +503,26 @@ final List<ComponentMetadata> componentRegistry = [
           BottomNavItemData(icon: Icons.chat_bubble_outline, label: "Reach Us"),
           BottomNavItemData(icon: Icons.more_horiz_rounded, label: "More"),
         ],
-        primaryButtonTitle: "Login with Fingerprint",
+        primaryButtonTitle: props['primaryButtonTitle'] ?? "Login with Fingerprint",
         primaryButtonIcon: Icons.fingerprint,
-        leftActionLabel: "Or, login with mPIN",
-        rightActionLabel: "Forgot mPIN?",
-        scanTitle: "QR Scan",
-        scanPopupTitle: "Scan Code",
+        leftActionLabel: props['leftActionLabel'] ?? "Or, login with mPIN",
+        rightActionLabel: props['rightActionLabel'] ?? "Forgot mPIN?",
+        scanTitle: props['scanTitle'] ?? "QR Scan",
+        scanPopupTitle: props['scanPopupTitle'] ?? "Scan Code",
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
-<<<<<<< Updated upstream
-      return "Scaffold(\n"
-          "  body: Column(\n"
-          "    children: [\n"
-          "      Header(),\n"
-          "      Expanded(\n"
-          "        child: SingleChildScrollView(\n"
-          "          child: Column(\n"
-          "            children: [\n"
-          "              Scan(title: \"Scan\"),\n"
-          "              ActionItems(),\n"
-          "              PrimaryButton(),\n"
-          "              InlineActionRow(),\n"
-          "            ],\n"
-          "          ),\n"
-          "        ),\n"
-          "      ),\n"
-          "      BottomNav(\n"
-          "        items: [\n"
-          "          BottomNavItemData(icon: Icons.build_circle_outlined, label: 'Maintenance'),\n"
-          "          BottomNavItemData(icon: Icons.chat_bubble_outline, label: 'Reach Us'),\n"
-          "          BottomNavItemData(icon: Icons.more_horiz_rounded, label: 'More'),\n"
-          "        ],\n"
-          "      ),\n"
-          "    ],\n"
-          "  ),\n"
-=======
       return "HomePage(\n"
           "  userName: '${props['userName']}',\n"
           "  customerId: '${props['customerId']}',\n"
           "  logoPath: 'assets/hdfc_logo.png',\n"
+          "  primaryButtonTitle: '${props['primaryButtonTitle']}',\n"
+          "  leftActionLabel: '${props['leftActionLabel']}',\n"
+          "  rightActionLabel: '${props['rightActionLabel']}',\n"
+          "  scanTitle: '${props['scanTitle']}',\n"
+          "  scanPopupTitle: '${props['scanPopupTitle']}',\n"
           "  actionItems: [...],\n"
           "  navItems: [...],\n"
->>>>>>> Stashed changes
           ")";
     },
   ),

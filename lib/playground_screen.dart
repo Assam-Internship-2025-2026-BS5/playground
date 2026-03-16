@@ -34,7 +34,10 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   void initState() {
     super.initState();
     if (componentRegistry.isNotEmpty) {
-      selectedComponent = componentRegistry.first;
+      selectedComponent = componentRegistry.firstWhere(
+        (comp) => comp.name == 'HomePage',
+        orElse: () => componentRegistry.first,
+      );
       currentProps = Map.from(selectedComponent!.defaultProps);
       _updateControllers();
     }
@@ -708,9 +711,11 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     
     // Add validation based on key name
     List<TextInputFormatter> formatters = [];
-    if (key.toLowerCase().contains("name")) {
-      // Only allow letters and spaces
-      formatters.add(FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')));
+    if (key.toLowerCase().contains("name") || 
+        key.toLowerCase().contains("title") || 
+        key.toLowerCase().contains("label")) {
+      // Only allow letters, spaces, and basic punctuation
+      formatters.add(FilteringTextInputFormatter.allow(RegExp(r'''[a-zA-Z\s.,?!'"-]+''')));
     } else if (key.toLowerCase().contains("id")) {
       // Only allow numbers and limit to 9 digits
       formatters.add(FilteringTextInputFormatter.digitsOnly);

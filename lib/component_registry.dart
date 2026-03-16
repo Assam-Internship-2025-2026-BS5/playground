@@ -230,6 +230,12 @@ final List<ComponentMetadata> componentRegistry = [
       'fontSize': 20.0,
       'color': Colors.black,
       'fontWeight': FontWeight.normal,
+      'showBorder': false,
+      'isEditable': false,
+      'hintText': 'Enter text',
+      'borderRadius': 8.0,
+      'fillColor': const Color(0xFFE2E8F0),
+      'borderColor': Colors.black,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.Text(
@@ -237,6 +243,17 @@ final List<ComponentMetadata> componentRegistry = [
         fontSize: (props['fontSize'] as num?)?.toDouble() ?? 20.0,
         color: props['color'] ?? Colors.black,
         fontWeight: props['fontWeight'] ?? FontWeight.normal,
+        showBorder: props['showBorder'] ?? false,
+        isEditable: props['isEditable'] ?? false,
+        hintText: props['hintText'] ?? 'Enter text',
+        borderRadius: (props['borderRadius'] as num?)?.toDouble() ?? 8.0,
+        fillColor: props['fillColor'] ?? const Color(0xFFE2E8F0),
+        borderColor: props['borderColor'] ?? Colors.black,
+        onChanged: (val) {
+          if (onPropChanged != null) {
+            onPropChanged('text', val);
+          }
+        },
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
@@ -245,6 +262,12 @@ final List<ComponentMetadata> componentRegistry = [
           "  fontSize: ${props['fontSize']},\n"
           "  color: ${_formatColor(props['color'])},\n"
           "  fontWeight: ${_formatFontWeight(props['fontWeight'])},\n"
+          "  showBorder: ${props['showBorder']},\n"
+          "  isEditable: ${props['isEditable']},\n"
+          "  hintText: '${props['hintText']}',\n"
+          "  borderRadius: ${props['borderRadius']},\n"
+          "  fillColor: ${_formatColor(props['fillColor'])},\n"
+          "  borderColor: ${_formatColor(props['borderColor'])},\n"
           ")";
     },
   ),
@@ -278,41 +301,6 @@ final List<ComponentMetadata> componentRegistry = [
           "  activeColor: ${_formatColor(props['activeColor'])},\n"
           "  checkColor: ${_formatColor(props['checkColor'])},\n"
           "  onChanged: (val) => print(val),\n"
-          ")";
-    },
-  ),
-  ComponentMetadata(
-    name: 'TextField',
-    category: 'Atoms',
-    defaultProps: {
-      'hintText': 'Enter text',
-      'width': 320.0,
-      'fontSize': 22.0,
-      'textColor': const Color(0xFF000000),
-      'fontWeight': FontWeight.w500,
-      'borderRadius': 30.0,
-      'fillColor': const Color(0x1FFFFFFF),
-    },
-    builder: (Map<String, dynamic> props, {onPropChanged}) {
-      return atom.TextField(
-        hintText: props['hintText'] ?? 'Enter text',
-        width: (props['width'] as num?)?.toDouble(),
-        fontSize: (props['fontSize'] as num?)?.toDouble() ?? 22.0,
-        textColor: props['textColor'] ?? const Color(0xFF000000),
-        fontWeight: props['fontWeight'] ?? FontWeight.w500,
-        borderRadius: (props['borderRadius'] as num?)?.toDouble() ?? 30.0,
-        fillColor: props['fillColor'] ?? const Color(0xFFE2E8F0),
-      );
-    },
-    codeBuilder: (Map<String, dynamic> props) {
-      return "TextField(\n"
-          "  hintText: '${props['hintText']}',\n"
-          "  width: ${props['width']},\n"
-          "  fontSize: ${props['fontSize']},\n"
-          "  textColor: ${_formatColor(props['textColor'])},\n"
-          "  fontWeight: ${_formatFontWeight(props['fontWeight'])},\n"
-          "  borderRadius: ${props['borderRadius']},\n"
-          "  fillColor: ${_formatColor(props['fillColor'])},\n"
           ")";
     },
   ),

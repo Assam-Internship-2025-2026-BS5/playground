@@ -11,24 +11,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Install Gitleaks
         run: |
           go install github.com/zricethezav/gitleaks/v8@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
-      - name: Run Gitleaks
+      - name: Run Gitleaks Scan (Logs)
         run: |
           gitleaks detect --source . --verbose || true
 
-      - name: Gitleaks Report
+      - name: Generate Gitleaks Report
         run: |
-          gitleaks detect --source . \
+          gitleaks detect \
+          --source . \
           --report-format json \
           --report-path gitleaks-report.json || true
 
-      - name: Trivy FS Scan
+      - name: Trivy Filesystem Scan (Logs)
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
@@ -36,7 +38,7 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
-      - name: Trivy FS Report
+      - name: Trivy Filesystem Report
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
@@ -45,28 +47,43 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
         with:
           name: security-reports
           path: |
             gitleaks-report.json
             trivy-fs-report.json
 
+
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Cache Flutter dependencies
+      - name: Cache Flutter Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - run: flutter pub get
-      - run: flutter build web
+      - name: Install Dependencies
+        run: flutter pub get
 
-      - name: Configure AWS
+      - name: Build Flutter Web
+        run: flutter build web
+
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

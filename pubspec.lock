@@ -52,9 +52,11 @@ packages:
   designkit:
     dependency: "direct main"
     description:
-      path: "../designkit"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "62fd541018dec5a4e9c1de2552bb7c5ce193bd88"
+      url: "https://github.com/Assam-Internship-2025-2026-BS5/designkit.git"
+    source: git
     version: "1.0.0+1"
   fake_async:
     dependency: transitive

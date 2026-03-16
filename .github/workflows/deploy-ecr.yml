@@ -6,33 +6,28 @@ on:
       - main
 
 jobs:
-  build:
+
+  security-scan:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
 
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Install Gitleaks
       - name: Install Gitleaks
         run: |
           go install github.com/zricethezav/gitleaks/v8@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
-      # Gitleaks table output in logs
-      - name: Run Gitleaks Scan (Logs)
+      - name: Run Gitleaks (Logs)
         run: |
           gitleaks detect --source . --verbose || true
 
-      # Gitleaks JSON report
-      - name: Generate Gitleaks Report
+      - name: Gitleaks Report
         run: |
           gitleaks detect --source . \
           --report-format json \
           --report-path gitleaks-report.json || true
 
-      # Trivy filesystem scan logs
       - name: Trivy FS Scan (Logs)
         uses: aquasecurity/trivy-action@master
         with:
@@ -41,7 +36,6 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
-      # Trivy filesystem JSON report
       - name: Trivy FS Report
         uses: aquasecurity/trivy-action@master
         with:
@@ -51,20 +45,30 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
-      # Setup Flutter
+      - name: Upload Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            gitleaks-report.json
+            trivy-fs-report.json
+
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - name: Install dependencies
-        run: flutter pub get
+      - run: flutter pub get
 
-      - name: Build Flutter Web
-        run: flutter build web
+      - run: flutter build web
 
-      # Configure AWS
-      - name: Configure AWS Credentials
+      - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -72,17 +76,14 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Login to ECR
-      - name: Login to Amazon ECR
+      - name: Login to ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # Build image
       - name: Build Docker Image
         run: |
           docker build -t ${{ secrets.ECR_REPOSITORY }} .
 
-      # Trivy Image Scan logs
       - name: Trivy Image Scan (Logs)
         uses: aquasecurity/trivy-action@master
         with:
@@ -91,7 +92,6 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
-      # Trivy Image JSON report
       - name: Trivy Image Report
         uses: aquasecurity/trivy-action@master
         with:
@@ -101,24 +101,18 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: 0
 
-      # Tag image
-      - name: Tag Docker Image
+      - name: Tag Image
         run: |
           docker tag ${{ secrets.ECR_REPOSITORY }}:latest \
           ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
 
-      # Push image
-      - name: Push Docker Image
+      - name: Push Image
         run: |
           docker push \
           ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
 
-      # Upload reports
-      - name: Upload Security Reports
+      - name: Upload Image Report
         uses: actions/upload-artifact@v4
         with:
-          name: security-reports
-          path: |
-            gitleaks-report.json
-            trivy-fs-report.json
-            trivy-image-report.json
+          name: image-report
+          path: trivy-image-report.json

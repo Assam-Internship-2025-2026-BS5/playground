@@ -1,21 +1,8 @@
 import 'component_metadata.dart';
 import 'package:flutter/material.dart' hide Text, TextField, Icon, Image, Checkbox, Button;
-import 'package:designkit/components/atoms/text.dart' as atom;
-import 'package:designkit/components/atoms/checkbox.dart' as atom;
-import 'package:designkit/components/atoms/text_field.dart' as atom;
-import 'package:designkit/components/atoms/image.dart' as atom;
-import 'package:designkit/components/atoms/button.dart' as atom;
-import 'package:designkit/components/atoms/icon.dart' as atom;
-import 'package:designkit/components/atoms/text_button.dart' as atom;
-import 'package:designkit/components/molecules/primary_button.dart';
-import 'package:designkit/components/molecules/scan.dart';
-import 'package:designkit/components/molecules/action_items.dart';
-import 'package:designkit/components/molecules/inline_action_row.dart';
-import 'package:designkit/components/organisms/app_header.dart';
-import 'package:designkit/components/organisms/bottom_nav.dart';
-import 'package:designkit/components/organisms/auth_section.dart';
+import 'package:designkit/designkit.dart';
+import 'package:designkit/designkit.dart' as atom;
 
-import 'package:designkit/components/pages/home_page.dart';
 
 String _formatColor(dynamic color) {
   if (color is Color) {
@@ -78,7 +65,8 @@ final List<ComponentMetadata> componentRegistry = [
       'title': 'QR Scan',
       'subtitle': '',
       'popupTitle': 'Scan Code',
-      'textColor': const Color(0xFF000000),
+      'textColor': const Color(0xFF1E3A8A),
+      'circleColor': const Color(0xFFE8EEFF),
       'width': 130.0,
       'height': 130.0,
     },
@@ -89,7 +77,8 @@ final List<ComponentMetadata> componentRegistry = [
         popupTitle: props['popupTitle'] ?? 'Scan Code',
         qrData: 'https://www.hdfcbank.com',
         imagePath: 'assets/Qr_scan.png',
-        textColor: props['textColor'] ?? const Color(0xFF000000),
+        textColor: props['textColor'] ?? const Color(0xFF1E3A8A),
+        circleColor: props['circleColor'] ?? const Color(0xFFE8EEFF),
         accentColor: const Color(0xFF8B5CF6),
         width: (props['width'] as num?)?.toDouble() ?? 130.0,
         height: (props['height'] as num?)?.toDouble() ?? 130.0,
@@ -103,6 +92,7 @@ final List<ComponentMetadata> componentRegistry = [
           "  subtitle: '${props['subtitle']}',\n"
           "  popupTitle: '${props['popupTitle']}',\n"
           "  textColor: ${_formatColor(props['textColor'])},\n"
+          "  circleColor: ${_formatColor(props['circleColor'])},\n"
           "  width: ${props['width']},\n"
           "  height: ${props['height']},\n"
           "  onTap: () => print('Tapped'),\n"
@@ -116,7 +106,6 @@ final List<ComponentMetadata> componentRegistry = [
       'title': 'Login with Fingerprint',
       'subtitle': '',
       'imagePath': 'assets/fingerprint.png',
-      'icon': Icons.fingerprint,
       'width': 380.0,
       'height': 56.0,
       'primaryColor': const Color(0xFF004C8F),
@@ -127,14 +116,13 @@ final List<ComponentMetadata> componentRegistry = [
         title: props['title'] ?? 'Login with Fingerprint',
         subtitle: props['subtitle'] ?? '',
         imagePath: props['imagePath'] ?? '',
-        icon: props['icon'] ?? Icons.fingerprint,
         width: (props['width'] as num?)?.toDouble() ?? 380.0,
         height: (props['height'] as num?)?.toDouble() ?? 56.0,
         gradientColors: [
           props['primaryColor'] ?? const Color(0xFF004C8F),
           props['secondaryColor'] ?? const Color(0xFF003366),
         ],
-        onTap: () => debugPrint('Fingerprint Login Button Tapped'),
+        onTap: () => debugPrint('Button Tapped'),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
@@ -142,7 +130,6 @@ final List<ComponentMetadata> componentRegistry = [
           "  title: '${props['title']}',\n"
           "  subtitle: '${props['subtitle']}',\n"
           "  imagePath: '${props['imagePath']}',\n"
-          "  icon: ${props['icon'] != null ? 'Icons.${props['icon'].toString().split('.').last}' : 'null'},\n"
           "  width: ${props['width']},\n"
           "  height: ${props['height']},\n"
           "  gradientColors: [${_formatColor(props['primaryColor'])}, ${_formatColor(props['secondaryColor'])}],\n"
@@ -154,26 +141,29 @@ final List<ComponentMetadata> componentRegistry = [
     name: 'InlineActionRow',
     category: 'Molecules',
     defaultProps: {
-      'mpinText': 'Or, login with mPIN',
-      'forgotMpinText': 'Forgot mPIN?',
+      'leftLabel': 'Or, login with mPIN',
+      'rightLabel': 'Forgot mPIN?',
       'textColor': const Color(0xFF1565C0),
+      'spacing': 80.0,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return InlineActionRow(
-        mpinText: props['mpinText'] ?? 'Or, login with mPIN',
-        forgotMpinText: props['forgotMpinText'] ?? 'Forgot mPIN?',
+        leftLabel: props['leftLabel'] ?? 'Or, login with mPIN',
+        rightLabel: props['rightLabel'] ?? 'Forgot mPIN?',
         textColor: props['textColor'] ?? const Color(0xFF1565C0),
-        onMPINLogin: () => debugPrint('mPIN Login Tapped'),
-        onForgotMPIN: () => debugPrint('Forgot mPIN Tapped'),
+        spacing: (props['spacing'] as num?)?.toDouble() ?? 80.0,
+        onLeftTap: () => debugPrint('Left Label Tapped'),
+        onRightTap: () => debugPrint('Right Label Tapped'),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
       return "InlineActionRow(\n"
-          "  mpinText: '${props['mpinText']}',\n"
-          "  forgotMpinText: '${props['forgotMpinText']}',\n"
+          "  leftLabel: '${props['leftLabel']}',\n"
+          "  rightLabel: '${props['rightLabel']}',\n"
           "  textColor: ${_formatColor(props['textColor'])},\n"
-          "  onMPINLogin: () => print('mPIN Login'),\n"
-          "  onForgotMPIN: () => print('Forgot mPIN'),\n"
+          "  spacing: ${props['spacing']},\n"
+          "  onLeftTap: () => print('Left Tapped'),\n"
+          "  onRightTap: () => print('Right Tapped'),\n"
           ")";
     },
   ),
@@ -181,31 +171,71 @@ final List<ComponentMetadata> componentRegistry = [
     name: 'ActionItems',
     category: 'Molecules',
     defaultProps: {
-      'items': null, // Uses default if null
+      'itemWidth': 100.0,
+      'itemHeight': 100.0,
+      'opacity': 0.1,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return ActionItems(
-        items: props['items'],
+        items: [
+          ActionItemData(title: 'Send Money', imagePath: 'assets/Send_money.png', isFullImage: true),
+          ActionItemData(title: 'Pay Bills', imagePath: 'assets/Pay_bills.png', isFullImage: true),
+          ActionItemData(title: 'Products', imagePath: 'assets/Product_services.png', isFullImage: true, showBadge: true),
+        ],
+        itemWidth: (props['itemWidth'] as num?)?.toDouble() ?? 100.0,
+        itemHeight: (props['itemHeight'] as num?)?.toDouble() ?? 100.0,
+        opacity: (props['opacity'] as num?)?.toDouble() ?? 0.1,
         onItemTap: (item) => debugPrint('Tapped: ${item.title}'),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
-      if (props['items'] == null) {
-        return "ActionItems(\n"
-            "  onItemTap: (item) => print(item.title),\n"
-            ")";
-      }
       return "ActionItems(\n"
           "  items: [\n"
           "    ActionItemData(title: 'Send Money', imagePath: 'assets/Send_money.png'),\n"
           "    ActionItemData(title: 'Pay Bills', imagePath: 'assets/Pay_bills.png'),\n"
           "    ActionItemData(title: 'Products', imagePath: 'assets/Product_services.png', showBadge: true),\n"
           "  ],\n"
+          "  itemWidth: ${props['itemWidth']},\n"
+          "  itemHeight: ${props['itemHeight']},\n"
           "  onItemTap: (item) => print(item.title),\n"
           ")";
     },
   ),
+<<<<<<< Updated upstream
 
+=======
+  ComponentMetadata(
+    name: 'BottomNav',
+    category: 'Organisms',
+    defaultProps: {
+      'backgroundColor': Colors.white,
+      'activeColor': const Color(0xFF004C8F),
+      'inactiveColor': const Color(0xFF4B5563),
+    },
+    builder: (Map<String, dynamic> props, {onPropChanged}) {
+      return BottomNav(
+        items: [
+          BottomNavItemData(icon: Icons.build_circle_outlined, label: "Maintenance"),
+          BottomNavItemData(icon: Icons.chat_bubble_outline, label: "Reach Us"),
+          BottomNavItemData(icon: Icons.more_horiz_rounded, label: "More"),
+        ],
+        backgroundColor: props['backgroundColor'] ?? Colors.white,
+        activeColor: props['activeColor'] ?? const Color(0xFF004C8F),
+        inactiveColor: props['inactiveColor'] ?? const Color(0xFF4B5563),
+        onNavTap: (label) => debugPrint('Nav Tapped: $label'),
+      );
+    },
+    codeBuilder: (Map<String, dynamic> props) {
+      return "BottomNav(\n"
+          "  items: [...],\n"
+          "  backgroundColor: ${_formatColor(props['backgroundColor'])},\n"
+          "  activeColor: ${_formatColor(props['activeColor'])},\n"
+          "  inactiveColor: ${_formatColor(props['inactiveColor'])},\n"
+          "  onNavTap: (label) => print(label),\n"
+          ")";
+    },
+  ),
+>>>>>>> Stashed changes
   ComponentMetadata(
     name: 'AppHeader',
     category: 'Organisms',
@@ -213,12 +243,14 @@ final List<ComponentMetadata> componentRegistry = [
       'userName': 'MHONBENI NGULLIE',
       'customerId': '******1010',
       'width': 375.0,
+      'backgroundColor': const Color(0xFFC7E2FE),
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return AppHeader(
         userName: props['userName'] ?? 'MHONBENI NGULLIE',
         customerId: props['customerId'] ?? '******1010',
         logoPath: 'assets/hdfc_logo.png',
+        backgroundColor: props['backgroundColor'] ?? const Color(0xFFC7E2FE),
         width: (props['width'] as num?)?.toDouble() ?? 375.0,
         onNotificationTap: () => debugPrint('Notification Tapped'),
       );
@@ -227,6 +259,8 @@ final List<ComponentMetadata> componentRegistry = [
       return "AppHeader(\n"
           "  userName: '${props['userName']}',\n"
           "  customerId: '${props['customerId']}',\n"
+          "  logoPath: 'assets/hdfc_logo.png',\n"
+          "  backgroundColor: ${_formatColor(props['backgroundColor'])},\n"
           "  width: ${props['width']},\n"
           "  onNotificationTap: () => print('Notification Tapped'),\n"
           ")";
@@ -236,31 +270,34 @@ final List<ComponentMetadata> componentRegistry = [
     name: 'AuthSection',
     category: 'Organisms',
     defaultProps: {
-      'fingerprintTitle': 'Login with Fingerprint',
-      'mpinText': 'Or, login with mPIN',
-      'forgotMpinText': 'Forgot mPIN?',
+      'primaryActionTitle': 'Login with Fingerprint',
+      'leftActionLabel': 'Or, login with mPIN',
+      'rightActionLabel': 'Forgot mPIN?',
       'width': 450.0,
+      'opacity': 0.1,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return AuthSection(
-        fingerprintTitle: props['fingerprintTitle'] ?? 'Login with Fingerprint',
-        mpinText: props['mpinText'] ?? 'Or, login with mPIN',
-        forgotMpinText: props['forgotMpinText'] ?? 'Forgot mPIN?',
+        primaryActionTitle: props['primaryActionTitle'] ?? 'Login with Fingerprint',
+        leftActionLabel: props['leftActionLabel'] ?? 'Or, login with mPIN',
+        rightActionLabel: props['rightActionLabel'] ?? 'Forgot mPIN?',
         width: (props['width'] as num?)?.toDouble() ?? 450.0,
-        onFingerprintTap: () => debugPrint('Fingerprint Tapped'),
-        onMPINTap: () => debugPrint('mPIN Tapped'),
-        onForgotMPINTap: () => debugPrint('Forgot mPIN Tapped'),
+        opacity: (props['opacity'] as num?)?.toDouble() ?? 0.1,
+        onPrimaryActionTap: () => debugPrint('Primary Tapped'),
+        onLeftActionTap: () => debugPrint('Left Tapped'),
+        onRightActionTap: () => debugPrint('Right Tapped'),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
       return "AuthSection(\n"
-          "  fingerprintTitle: '${props['fingerprintTitle']}',\n"
-          "  mpinText: '${props['mpinText']}',\n"
-          "  forgotMpinText: '${props['forgotMpinText']}',\n"
+          "  primaryActionTitle: '${props['primaryActionTitle']}',\n"
+          "  leftActionLabel: '${props['leftActionLabel']}',\n"
+          "  rightActionLabel: '${props['rightActionLabel']}',\n"
           "  width: ${props['width']},\n"
-          "  onFingerprintTap: () => print('Fingerprint'),\n"
-          "  onMPINTap: () => print('mPIN'),\n"
-          "  onForgotMPINTap: () => print('Forgot mPIN'),\n"
+          "  opacity: ${props['opacity']},\n"
+          "  onPrimaryActionTap: () => print('Primary'),\n"
+          "  onLeftActionTap: () => print('Left'),\n"
+          "  onRightActionTap: () => print('Right'),\n"
           ")";
     },
   ),
@@ -394,7 +431,6 @@ final List<ComponentMetadata> componentRegistry = [
       'disabled': false,
       'buttonColor': const Color(0xFF5371F9),
       'showOutline': true,
-      'blur': 10.0,
       'opacity': 0.3,
       'textColor': Colors.white,
       'fontSize': 22.0,
@@ -409,7 +445,6 @@ final List<ComponentMetadata> componentRegistry = [
         disabled: props['disabled'] ?? false,
         buttonColor: props['buttonColor'] ?? const Color(0xFF5371F9),
         showOutline: props['showOutline'] ?? true,
-        blur: (props['blur'] as num?)?.toDouble() ?? 10.0,
         opacity: (props['opacity'] as num?)?.toDouble() ?? 0.3,
         textColor: props['textColor'] ?? Colors.white,
         fontSize: (props['fontSize'] as num?)?.toDouble() ?? 22.0,
@@ -426,7 +461,6 @@ final List<ComponentMetadata> componentRegistry = [
           "  disabled: ${props['disabled']},\n"
           "  buttonColor: ${_formatColor(props['buttonColor'])},\n"
           "  showOutline: ${props['showOutline']},\n"
-          "  blur: ${props['blur']},\n"
           "  opacity: ${props['opacity']},\n"
           "  textColor: ${_formatColor(props['textColor'])},\n"
           "  fontSize: ${props['fontSize']},\n"
@@ -492,11 +526,35 @@ final List<ComponentMetadata> componentRegistry = [
   ComponentMetadata(
     name: 'HomePage',
     category: 'Pages',
-    defaultProps: {},
+    defaultProps: {
+      'userName': 'MHONBENI NGULLIE',
+      'customerId': '******1010',
+    },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
-      return const HomePage();
+      return HomePage(
+        userName: props['userName'] ?? 'MHONBENI NGULLIE',
+        customerId: props['customerId'] ?? '******1010',
+        logoPath: 'assets/hdfc_logo.png',
+        actionItems: [
+          ActionItemData(title: 'Send Money', imagePath: 'assets/Send_money.png', isFullImage: true),
+          ActionItemData(title: 'Pay Bills', imagePath: 'assets/Pay_bills.png', isFullImage: true),
+          ActionItemData(title: 'Products', imagePath: 'assets/Product_services.png', isFullImage: true),
+        ],
+        navItems: [
+          BottomNavItemData(icon: Icons.build_circle_outlined, label: "Maintenance"),
+          BottomNavItemData(icon: Icons.chat_bubble_outline, label: "Reach Us"),
+          BottomNavItemData(icon: Icons.more_horiz_rounded, label: "More"),
+        ],
+        primaryButtonTitle: "Login with Fingerprint",
+        primaryButtonIcon: Icons.fingerprint,
+        leftActionLabel: "Or, login with mPIN",
+        rightActionLabel: "Forgot mPIN?",
+        scanTitle: "QR Scan",
+        scanPopupTitle: "Scan Code",
+      );
     },
     codeBuilder: (Map<String, dynamic> props) {
+<<<<<<< Updated upstream
       return "Scaffold(\n"
           "  body: Column(\n"
           "    children: [\n"
@@ -522,6 +580,14 @@ final List<ComponentMetadata> componentRegistry = [
           "      ),\n"
           "    ],\n"
           "  ),\n"
+=======
+      return "HomePage(\n"
+          "  userName: '${props['userName']}',\n"
+          "  customerId: '${props['customerId']}',\n"
+          "  logoPath: 'assets/hdfc_logo.png',\n"
+          "  actionItems: [...],\n"
+          "  navItems: [...],\n"
+>>>>>>> Stashed changes
           ")";
     },
   ),

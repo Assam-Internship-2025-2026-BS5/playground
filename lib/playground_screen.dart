@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'component_registry.dart';
 import 'component_metadata.dart';
-import 'package:designkit/components/atoms/glass_container.dart';
+import 'package:designkit/designkit.dart' hide Text, TextField, Icon, Image, Checkbox, Button, TextButton;
+
 
 class PlaygroundScreen extends StatefulWidget {
   const PlaygroundScreen({super.key});
@@ -747,6 +748,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     if (key.toLowerCase().contains("opacity")) max = 1.0;
     if (key.toLowerCase().contains("radius")) max = 100.0;
     if (key.toLowerCase().contains("font")) max = 150.0;
+    if (key.toLowerCase().contains("size")) max = 350.0;
     if (key.toLowerCase().contains("width")) max = 750.0;
     if (key.toLowerCase().contains("offsetx")) {
       min = -300;
@@ -782,6 +784,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                                key.toLowerCase().contains("radius") || 
                                key.toLowerCase().contains("width") || 
                                key.toLowerCase().contains("height") || 
+                               key.toLowerCase().contains("size") ||
                                key.toLowerCase().contains("offset")) ? " px" : null,
                   suffixStyle: const TextStyle(
                     color: Color(0xFF64748B),

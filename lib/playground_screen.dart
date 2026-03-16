@@ -764,6 +764,9 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     } else if (key.toLowerCase().contains("offset")) {
       min = -500;
       max = 500;
+    } else if (key.toLowerCase().contains("spacing")) {
+      min = 0;
+      max = 500;
     }
 
     return Column(
@@ -790,7 +793,8 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                                key.toLowerCase().contains("width") || 
                                key.toLowerCase().contains("height") || 
                                key.toLowerCase().contains("size") ||
-                               key.toLowerCase().contains("offset")) ? " px" : null,
+                               key.toLowerCase().contains("offset") ||
+                               key.toLowerCase().contains("spacing")) ? " px" : null,
                   suffixStyle: const TextStyle(
                     color: Color(0xFF64748B),
                     fontSize: 12,

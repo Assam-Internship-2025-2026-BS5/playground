@@ -381,8 +381,12 @@ final List<ComponentMetadata> componentRegistry = [
       'height': 61.0,
       'disabled': false,
       'buttonColor': const Color(0xFF5371F9),
+<<<<<<< Updated upstream
       'isSingleColor': false,
       'opacity': 0.8,
+=======
+      'opacity': 0.3,
+>>>>>>> Stashed changes
       'textColor': Colors.white,
       'fontSize': 22.0,
       'fontWeight': FontWeight.w600,
@@ -396,8 +400,12 @@ final List<ComponentMetadata> componentRegistry = [
         height: (props['height'] as num?)?.toDouble() ?? 61.0,
         disabled: props['disabled'] ?? false,
         buttonColor: props['buttonColor'] ?? const Color(0xFF5371F9),
+<<<<<<< Updated upstream
         isSingleColor: props['isSingleColor'] ?? false,
         opacity: (props['opacity'] as num?)?.toDouble() ?? 0.8,
+=======
+        opacity: (props['opacity'] as num?)?.toDouble() ?? 0.3,
+>>>>>>> Stashed changes
         textColor: props['textColor'] ?? Colors.white,
         fontSize: (props['fontSize'] as num?)?.toDouble() ?? 22.0,
         fontWeight: props['fontWeight'] ?? FontWeight.w600,
@@ -413,7 +421,10 @@ final List<ComponentMetadata> componentRegistry = [
           "  height: ${props['height']},\n"
           "  disabled: ${props['disabled']},\n"
           "  buttonColor: ${_formatColor(props['buttonColor'])},\n"
+<<<<<<< Updated upstream
           "  isSingleColor: ${props['isSingleColor'] ?? false},\n"
+=======
+>>>>>>> Stashed changes
           "  opacity: ${props['opacity']},\n"
           "  textColor: ${_formatColor(props['textColor'])},\n"
           "  fontSize: ${props['fontSize']},\n"

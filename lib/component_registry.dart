@@ -305,9 +305,9 @@ final List<ComponentMetadata> componentRegistry = [
       'fontSize': 22.0,
       'fontWeight': FontWeight.w600,
       'borderRadius': 20.0,
-      'showFingerprint': false,
-      'showForwardArrow': false,
-      'showBackwardArrow': false,
+      'fingerprint': false,
+      'forward': false,
+      'backward': false,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.Button(
@@ -322,9 +322,9 @@ final List<ComponentMetadata> componentRegistry = [
         fontSize: (props['fontSize'] as num?)?.toDouble() ?? 22.0,
         fontWeight: props['fontWeight'] ?? FontWeight.w600,
         borderRadius: (props['borderRadius'] as num?)?.toDouble() ?? 20.0,
-        showFingerprint: props['showFingerprint'] ?? false,
-        showForwardArrow: props['showForwardArrow'] ?? false,
-        showBackwardArrow: props['showBackwardArrow'] ?? false,
+        showFingerprint: props['fingerprint'] ?? false,
+        showForwardArrow: props['forward'] ?? false,
+        showBackwardArrow: props['backward'] ?? false,
         onTap: () => debugPrint('Button Pressed'),
       );
     },
@@ -341,9 +341,9 @@ final List<ComponentMetadata> componentRegistry = [
           "  fontSize: ${props['fontSize']},\n"
           "  fontWeight: ${_formatFontWeight(props['fontWeight'])},\n"
           "  borderRadius: ${props['borderRadius']},\n"
-          "  showFingerprint: ${props['showFingerprint'] ?? false},\n"
-          "  showForwardArrow: ${props['showForwardArrow'] ?? false},\n"
-          "  showBackwardArrow: ${props['showBackwardArrow'] ?? false},\n"
+          "  fingerprint: ${props['fingerprint'] ?? false},\n"
+          "  forward: ${props['forward'] ?? false},\n"
+          "  backward: ${props['backward'] ?? false},\n"
           "  onTap: () => print('Pressed'),\n"
           ")";
     },

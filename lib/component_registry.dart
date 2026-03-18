@@ -59,44 +59,7 @@ final List<ComponentMetadata> componentRegistry = [
           ")";
     },
   ),
-  ComponentMetadata(
-    name: 'PrimaryButton',
-    category: 'Molecules',
-    defaultProps: {
-      'title': 'Login with Fingerprint',
-      'subtitle': '',
-      'imagePath': 'assets/fingerprint.png',
-      'width': 380.0,
-      'height': 56.0,
-      'primaryColor': const Color(0xFF004C8F),
-      'secondaryColor': const Color(0xFF003366),
-    },
-    builder: (Map<String, dynamic> props, {onPropChanged}) {
-      return PrimaryButton(
-        title: props['title'] ?? 'Login with Fingerprint',
-        subtitle: props['subtitle'] ?? '',
-        imagePath: props['imagePath'] ?? '',
-        width: (props['width'] as num?)?.toDouble() ?? 380.0,
-        height: (props['height'] as num?)?.toDouble() ?? 56.0,
-        gradientColors: [
-          props['primaryColor'] ?? const Color(0xFF004C8F),
-          props['secondaryColor'] ?? const Color(0xFF003366),
-        ],
-        onTap: () => debugPrint('Button Tapped'),
-      );
-    },
-    codeBuilder: (Map<String, dynamic> props) {
-      return "PrimaryButton(\n"
-          "  title: '${props['title']}',\n"
-          "  subtitle: '${props['subtitle']}',\n"
-          "  imagePath: '${props['imagePath']}',\n"
-          "  width: ${props['width']},\n"
-          "  height: ${props['height']},\n"
-          "  gradientColors: [${_formatColor(props['primaryColor'])}, ${_formatColor(props['secondaryColor'])}],\n"
-          "  onTap: () => print('Tapped'),\n"
-          ")";
-    },
-  ),
+
   ComponentMetadata(
     name: 'ActionItems',
     category: 'Molecules',
@@ -328,10 +291,10 @@ final List<ComponentMetadata> componentRegistry = [
     },
   ),
   ComponentMetadata(
-    name: 'Button',
+    name: 'Primary Button',
     category: 'Atoms',
     defaultProps: {
-      'text': 'Button',
+      'text': 'Primary Button',
       'width': 321.0,
       'height': 61.0,
       'disabled': false,
@@ -343,10 +306,12 @@ final List<ComponentMetadata> componentRegistry = [
       'fontWeight': FontWeight.w600,
       'borderRadius': 20.0,
       'showFingerprint': false,
+      'showForwardArrow': false,
+      'showBackwardArrow': false,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return atom.Button(
-        text: props['text'] ?? 'Button',
+        text: props['text'] ?? 'Primary Button',
         width: (props['width'] as num?)?.toDouble() ?? 321.0,
         height: (props['height'] as num?)?.toDouble() ?? 61.0,
         disabled: props['disabled'] ?? false,
@@ -358,11 +323,13 @@ final List<ComponentMetadata> componentRegistry = [
         fontWeight: props['fontWeight'] ?? FontWeight.w600,
         borderRadius: (props['borderRadius'] as num?)?.toDouble() ?? 20.0,
         showFingerprint: props['showFingerprint'] ?? false,
+        showForwardArrow: props['showForwardArrow'] ?? false,
+        showBackwardArrow: props['showBackwardArrow'] ?? false,
         onTap: () => debugPrint('Button Pressed'),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
-      return "Button(\n"
+      return "PrimaryButton(\n"
           "  text: '${props['text']}',\n"
           "  width: ${props['width']},\n"
           "  height: ${props['height']},\n"
@@ -375,6 +342,8 @@ final List<ComponentMetadata> componentRegistry = [
           "  fontWeight: ${_formatFontWeight(props['fontWeight'])},\n"
           "  borderRadius: ${props['borderRadius']},\n"
           "  showFingerprint: ${props['showFingerprint'] ?? false},\n"
+          "  showForwardArrow: ${props['showForwardArrow'] ?? false},\n"
+          "  showBackwardArrow: ${props['showBackwardArrow'] ?? false},\n"
           "  onTap: () => print('Pressed'),\n"
           ")";
     },

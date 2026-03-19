@@ -28,6 +28,7 @@ String _formatFontWeight(dynamic weight) {
   return "FontWeight.normal";
 }
 
+
 final List<ComponentMetadata> componentRegistry = [
   ComponentMetadata(
     name: 'QR Scan',
@@ -101,23 +102,23 @@ final List<ComponentMetadata> componentRegistry = [
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return BottomNav(
+        backgroundColor: props['backgroundColor'] ?? Colors.white,
+        activeColor: props['activeColor'] ?? const Color(0xFF004C8F),
+        inactiveColor: props['inactiveColor'] ?? const Color(0xFF4B5563),
         items: [
           BottomNavItemData(icon: Icons.build_circle_outlined, label: "Maintenance"),
           BottomNavItemData(icon: Icons.chat_bubble_outline, label: "Reach Us"),
           BottomNavItemData(icon: Icons.more_horiz_rounded, label: "More"),
         ],
-        backgroundColor: props['backgroundColor'] ?? Colors.white,
-        activeColor: props['activeColor'] ?? const Color(0xFF004C8F),
-        inactiveColor: props['inactiveColor'] ?? const Color(0xFF4B5563),
         onNavTap: (label) => debugPrint('Nav Tapped: $label'),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {
       return "BottomNav(\n"
-          "  items: [...],\n"
           "  backgroundColor: ${_formatColor(props['backgroundColor'])},\n"
           "  activeColor: ${_formatColor(props['activeColor'])},\n"
           "  inactiveColor: ${_formatColor(props['inactiveColor'])},\n"
+          "  items: [...],\n"
           "  onNavTap: (label) => print(label),\n"
           ")";
     },

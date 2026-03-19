@@ -162,6 +162,7 @@ final List<ComponentMetadata> componentRegistry = [
       'leftActionLabel': 'Or, login with mPIN',
       'rightActionLabel': 'Forgot mPIN?',
       'width': 450.0,
+      'showFingerprint': false,
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return AuthSection(
@@ -169,6 +170,7 @@ final List<ComponentMetadata> componentRegistry = [
         leftActionLabel: props['leftActionLabel'] ?? 'Or, login with mPIN',
         rightActionLabel: props['rightActionLabel'] ?? 'Forgot mPIN?',
         width: (props['width'] as num?)?.toDouble() ?? 450.0,
+        showFingerprint: props['showFingerprint'] ?? false,
         onPrimaryActionTap: () => debugPrint('Primary Tapped'),
         onLeftActionTap: () => debugPrint('Left Tapped'),
         onRightActionTap: () => debugPrint('Right Tapped'),
@@ -180,6 +182,7 @@ final List<ComponentMetadata> componentRegistry = [
           "  leftActionLabel: '${props['leftActionLabel']}',\n"
           "  rightActionLabel: '${props['rightActionLabel']}',\n"
           "  width: ${props['width']},\n"
+          "  showFingerprint: ${props['showFingerprint']},\n"
           "  onPrimaryActionTap: () => print('Primary'),\n"
           "  onLeftActionTap: () => print('Left'),\n"
           "  onRightActionTap: () => print('Right'),\n"

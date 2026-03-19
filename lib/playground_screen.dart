@@ -18,7 +18,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   final Map<String, TextEditingController> _controllers = {};
   int _refreshCounter = 0;
   
-  // Track expansion state for categories
+  
   final Map<String, bool> _expandedCategories = {
     "Atoms": false,
     "Molecules": false,
@@ -26,7 +26,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     "Pages": false,
   };
 
-  int _selectedRightTab = 0; // 0 for Properties, 1 for Code
+  int _selectedRightTab = 0; 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
 
@@ -50,7 +50,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   }
 
   void _updateControllers() {
-    // Clear existing if needed, or just update
+  
     _controllers.forEach((key, controller) => controller.dispose());
     _controllers.clear();
     
@@ -90,7 +90,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
           ) : null,
           body: Container(
             decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC), // Clean white-ish background
+              color: Color(0xFFF8FAFC), 
             ),
             child: Column(
               children: [  
@@ -99,18 +99,18 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Sidebar (Desktop only)
+                      
                       if (!isMobile)
                         Container(
                           width: 300,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFD0DDF2), // Light blue-grey tint for sidebar
+                            color: const Color(0xFFD0DDF2), 
                             border: Border(right: BorderSide(color: Colors.black.withAlpha(20), width: 1)),
                           ),
                           child: _sidebar(),
                         ),
                       
-                      // Preview (Always visible)
+                     
                       Expanded(
                         child: Container(
                           decoration: BoxDecoration(
@@ -122,7 +122,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                         ),
                       ),
                       
-                      // Properties (Desktop only)
+                      
                       if (!isMobile)
                         SizedBox(
                           width: 300,
@@ -139,19 +139,19 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     );
   }
 
-  // ================= HEADER =================
+
 
   Widget _header({bool isMobile = false}) {
     return Container(
       height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 16), // Slightly tighter for mobile
+      padding: const EdgeInsets.symmetric(horizontal: 16), 
       decoration: BoxDecoration(
         color: Colors.blueGrey[50],
         border: Border(bottom: BorderSide(color: Colors.black.withAlpha(20), width: 1)),
       ),
       child: Row(
         children: [
-          // Left Side: Sidebar Toggle (Mobile) or HDFC Logo (Desktop)
+          
           if (isMobile)
             Builder(
               builder: (context) => IconButton(
@@ -198,7 +198,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
               ),
             ),
 
-          // Right Side: Properties Toggle (Mobile) or Spacer/Registry Info (Desktop)
+          
           if (isMobile)
             Builder(
               builder: (context) => IconButton(
@@ -207,13 +207,13 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
               ),
             )
           else
-            const SizedBox(width: 48), // Balance for logo
+            const SizedBox(width: 48), 
         ],
       ),
     );
   }
 
-  // ================= SIDEBAR =================
+ 
 
   Widget _sidebar() {
     return Column(
@@ -295,10 +295,10 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
         .where((c) => c.category == category)
         .toList();
 
-    // Filter by search query if present
+    
     if (_searchQuery.isNotEmpty) {
       items = items.where((c) => c.name.toLowerCase().startsWith(_searchQuery)).toList();
-      // If no items match in this category and we are searching, hide the category
+     
       if (items.isEmpty) return const SizedBox();
     }
 
@@ -374,15 +374,13 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     );
   }
 
-  // ================= PREVIEW =================
-
   Widget _preview() {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Component Name and Category
+         
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -411,11 +409,11 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
             ],
           ),
           const SizedBox(height: 32),
-          // Component Preview
+          
           Expanded(
             child: GlassContainer(
               padding: EdgeInsets.zero,
-              opacity: 0.1, // Slightly more visible glass for light mode
+              opacity: 0.1, 
               borderRadius: BorderRadius.circular(24),
               child: Center(
                     child: selectedComponent == null
@@ -427,7 +425,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                           fit: BoxFit.scaleDown,
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
-                              // Pages need a minimum "screen" size to layout correctly
+                              
                               minWidth: selectedComponent?.category == "Pages" ? 375 : 0,
                               minHeight: selectedComponent?.category == "Pages" ? 812 : 0,
                               maxWidth: selectedComponent?.category == "Pages" ? 375 : double.infinity,
@@ -457,8 +455,6 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
   }
 
 
-  // ================= PROPERTIES =================
-
   Widget _properties() {
     if (selectedComponent == null) return const SizedBox();
 
@@ -476,7 +472,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
       ),
       child: Column(
         children: [
-          // Tab Header
+        
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             decoration: BoxDecoration(
@@ -509,7 +505,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
             ),
           ),
           
-          // Panel Content
+          
           Expanded(
             child: _selectedRightTab == 0 
               ? _buildPropertiesList()
@@ -620,7 +616,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Render all properties dynamically
+          
           ...currentProps.entries.map((entry) {
             final key = entry.key;
             final value = entry.value;
@@ -662,7 +658,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
               _infoRow("Category", selectedComponent?.category ?? ""),
             ],
           ),
-          const SizedBox(height: 40), // Bottom padding for scroll
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -709,16 +705,15 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     bool disabled = currentProps["disabled"] ?? false;
     final controller = _controllers[key];
     
-    // Add validation based on key name
+   
     List<TextInputFormatter> formatters = [];
     if (key.toLowerCase().contains("name") || 
         key.toLowerCase().contains("title") || 
         key.toLowerCase().contains("label")) {
-      // Only allow letters, spaces, and basic punctuation
+     
       formatters.add(FilteringTextInputFormatter.allow(RegExp(r'''[a-zA-Z\s.,?!'"-]+''')));
     } else if (key.toLowerCase().contains("id")) {
-      // Only allow numbers and limit to 9 digits
-      formatters.add(FilteringTextInputFormatter.digitsOnly);
+            formatters.add(FilteringTextInputFormatter.digitsOnly);
       formatters.add(LengthLimitingTextInputFormatter(9));
     }
     
@@ -747,7 +742,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     final value = (currentProps[key] ?? 0.0).toDouble();
     final controller = _controllers[key];
     
-    // Determine bounds based on key name
+    
     double min = 0;
     double max = 1000;
     if (key.toLowerCase().contains("opacity")) max = 1.0;
@@ -777,7 +772,7 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
           children: [
             Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 13)),
             SizedBox(
-              width: 70, // Slightly wider for suffix
+              width: 70, 
               height: 24,
               child: TextField(
                 enabled: !disabled,
@@ -964,8 +959,8 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
     );
   }
 }
+ 
 
-// ================= HSV COLOR PICKER =================
 
 class _HSVColorPicker extends StatefulWidget {
   final Color color;
@@ -1005,7 +1000,7 @@ class _HSVColorPickerState extends State<_HSVColorPicker> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // S/V Box
+        
         GestureDetector(
           onPanUpdate: (details) {
             final RenderBox box = context.findRenderObject() as RenderBox;
@@ -1057,7 +1052,7 @@ class _HSVColorPickerState extends State<_HSVColorPicker> {
           ),
         ),
         const SizedBox(height: 12),
-        // Hue Slider
+        
         GestureDetector(
           onHorizontalDragUpdate: (details) {
             setState(() {
@@ -1085,7 +1080,7 @@ class _HSVColorPickerState extends State<_HSVColorPicker> {
           ),
         ),
         const SizedBox(height: 16),
-        // Hex Display
+        
         GestureDetector(
           onTap: () {
             final hexCode = widget.color.value.toRadixString(16).substring(2).toUpperCase();

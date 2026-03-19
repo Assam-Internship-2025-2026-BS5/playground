@@ -198,8 +198,6 @@ final List<ComponentMetadata> componentRegistry = [
       'color': Colors.black,
       'fontWeight': FontWeight.normal,
       'showBorder': false,
-      'isEditable': false,
-      'hintText': 'Enter text',
       'borderRadius': 8.0,
       'fillColor': const Color(0xFFE2E8F0),
       'borderColor': Colors.black,
@@ -211,8 +209,6 @@ final List<ComponentMetadata> componentRegistry = [
         color: props['color'] ?? Colors.black,
         fontWeight: props['fontWeight'] ?? FontWeight.normal,
         showBorder: props['showBorder'] ?? false,
-        isEditable: props['isEditable'] ?? false,
-        hintText: props['hintText'] ?? 'Enter text',
         borderRadius: (props['borderRadius'] as num?)?.toDouble() ?? 8.0,
         fillColor: props['fillColor'] ?? const Color(0xFFE2E8F0),
         borderColor: props['borderColor'] ?? Colors.black,
@@ -230,8 +226,6 @@ final List<ComponentMetadata> componentRegistry = [
           "  color: ${_formatColor(props['color'])},\n"
           "  fontWeight: ${_formatFontWeight(props['fontWeight'])},\n"
           "  showBorder: ${props['showBorder']},\n"
-          "  isEditable: ${props['isEditable']},\n"
-          "  hintText: '${props['hintText']}',\n"
           "  borderRadius: ${props['borderRadius']},\n"
           "  fillColor: ${_formatColor(props['fillColor'])},\n"
           "  borderColor: ${_formatColor(props['borderColor'])},\n"

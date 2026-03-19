@@ -437,6 +437,10 @@ final List<ComponentMetadata> componentRegistry = [
         rightActionLabel: props['rightActionLabel'] ?? "Forgot mPIN?",
         scanTitle: props['scanTitle'] ?? "QR Scan",
         scanPopupTitle: props['scanPopupTitle'] ?? "Scan Code",
+        onPrimaryButtonTap: () => debugPrint('Primary Button Tapped'),
+        onLeftActionTap: () => debugPrint('Left Action Tapped'),
+        onRightActionTap: () => debugPrint('Right Action Tapped'),
+        onScanTap: () => debugPrint('Scan Tapped'),
       );
     },
     codeBuilder: (Map<String, dynamic> props) {

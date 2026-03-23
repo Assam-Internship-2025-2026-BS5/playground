@@ -119,8 +119,8 @@ jobs:
           echo "TRIVY RESULTS"
 
           jq -r '.Results[].Vulnerabilities[]? |
-          "| " + .PkgName +
-          " | " + .VulnerabilityID +
-          " | " + .Severity +
+          " |      " + .PkgName +
+          " |      " + .VulnerabilityID +
+          " |      " + .Severity +
           " | CVSS " + (.CVSS.nvd.V3Score|tostring) +
-          " |"' trivy-report.json
+          " |      "' trivy-report.json

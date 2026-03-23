@@ -98,13 +98,11 @@ final List<ComponentMetadata> componentRegistry = [
     defaultProps: {
       'backgroundColor': Colors.white,
       'activeColor': const Color(0xFF004C8F),
-      'inactiveColor': const Color(0xFF4B5563),
     },
     builder: (Map<String, dynamic> props, {onPropChanged}) {
       return BottomNav(
         backgroundColor: props['backgroundColor'] ?? Colors.white,
         activeColor: props['activeColor'] ?? const Color(0xFF004C8F),
-        inactiveColor: props['inactiveColor'] ?? const Color(0xFF4B5563),
         items: [
           BottomNavItemData(icon: Icons.build_circle_outlined, label: "Maintenance"),
           BottomNavItemData(icon: Icons.chat_bubble_outline, label: "Reach Us"),
@@ -117,7 +115,6 @@ final List<ComponentMetadata> componentRegistry = [
       return "BottomNav(\n"
           "  backgroundColor: ${_formatColor(props['backgroundColor'])},\n"
           "  activeColor: ${_formatColor(props['activeColor'])},\n"
-          "  inactiveColor: ${_formatColor(props['inactiveColor'])},\n"
           "  items: [...],\n"
           "  onNavTap: (label) => print(label),\n"
           ")";

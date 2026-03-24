@@ -432,6 +432,11 @@ final List<ComponentMetadata> componentRegistry = [
         onLeftActionTap: () => debugPrint('Left Action Tapped'),
         onRightActionTap: () => debugPrint('Right Action Tapped'),
         onScanTap: () => debugPrint('Scan Tapped'),
+        onIdChanged: (newId) {
+          if (onPropChanged != null) {
+            onPropChanged('customerId', newId);
+          }
+        },
       );
     },
     codeBuilder: (Map<String, dynamic> props) {

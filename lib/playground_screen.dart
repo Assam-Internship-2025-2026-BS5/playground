@@ -713,8 +713,8 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
      
       formatters.add(FilteringTextInputFormatter.allow(RegExp(r'''[a-zA-Z\s.,?!'"-]+''')));
     } else if (key.toLowerCase().contains("id")) {
-            formatters.add(FilteringTextInputFormatter.digitsOnly);
-      formatters.add(LengthLimitingTextInputFormatter(9));
+      formatters.add(FilteringTextInputFormatter.allow(RegExp(r'[0-9*]')));
+      formatters.add(LengthLimitingTextInputFormatter(10));
     }
     
     return Column(
@@ -730,7 +730,28 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
             fontSize: 14,
           ),
           controller: controller,
-          onChanged: (val) => setState(() => currentProps[key] = val),
+          onChanged: (val) {
+            String newVal = val;
+            if (key.toLowerCase().contains("id")) {
+              if (val.length > 10) {
+                newVal = val.substring(0, 10);
+                controller?.text = newVal;
+              }
+              if (newVal.isNotEmpty) {
+                // Ensure first 6 chars are stars if they were digits
+                String maskedPart = newVal.substring(0, newVal.length > 6 ? 6 : newVal.length);
+                if (RegExp(r'^\d+$').hasMatch(maskedPart)) {
+                   String stars = '*' * maskedPart.length;
+                   newVal = stars + (newVal.length > 6 ? newVal.substring(6) : "");
+                   controller?.value = controller.value.copyWith(
+                     text: newVal,
+                     selection: TextSelection.collapsed(offset: newVal.length),
+                   );
+                }
+              }
+            }
+            setState(() => currentProps[key] = newVal);
+          },
           decoration: _inputDecoration(),
         ),
       ],

@@ -738,10 +738,13 @@ class _PlaygroundScreenState extends State<PlaygroundScreen> {
                 controller?.text = newVal;
               }
               if (newVal.isNotEmpty) {
-                // Ensure first 6 chars are stars if they were digits
-                String maskedPart = newVal.substring(0, newVal.length > 6 ? 6 : newVal.length);
-                if (RegExp(r'^\d+$').hasMatch(maskedPart)) {
-                   String stars = '*' * maskedPart.length;
+                // Always mask the first 6 characters
+                int maskLimit = newVal.length > 6 ? 6 : newVal.length;
+                String maskedPart = newVal.substring(0, maskLimit);
+                
+                // If there are any digits in the prefix, replace the prefix with stars
+                if (maskedPart.contains(RegExp(r'\d'))) {
+                   String stars = '*' * maskLimit;
                    newVal = stars + (newVal.length > 6 ? newVal.substring(6) : "");
                    controller?.value = controller.value.copyWith(
                      text: newVal,
